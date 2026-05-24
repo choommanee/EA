@@ -104,12 +104,11 @@ input double          InpEmergencyMarginPct = 30.0; // Emergency Margin Level % 
 input group "=== DIRECTION FILTER (EMA & RSI) ==="
 input ENUM_TIMEFRAMES InpHtfPeriod = PERIOD_H1;     // HTF Period for Trend Filter
 input bool            InpUseHtfFilter = true;        // Use Strict HTF Trend Filter
-input bool            InpUseMajorTrendGuard = true;  // Block L1 against major trend
+input bool            InpUseMajorTrendGuard = true;  // Use major trend as L1 direction bias
 input ENUM_TIMEFRAMES InpMajorTrendPeriod = PERIOD_H4; // Major Trend Period
 input int             InpMajorTrendFastEma = 50;     // Major Trend Fast EMA
 input int             InpMajorTrendSlowEma = 200;    // Major Trend Slow EMA
 input int             InpMajorTrendSlopeBars = 12;   // Major Trend Slope Bars
-input int             InpMajorTrendGuardAddsFromLevel = 4; // Block adds against major trend from level
 input int             InpMomEmaFast = 8;            // EMA Fast Period
 input int             InpMomEmaSlow = 21;           // EMA Slow Period
 input int             InpMomRsiPeriod = 14;         // RSI Period
@@ -2362,33 +2361,6 @@ ENUM_DIRECTION GetMajorTrendDirection(string &reason)
 }
 
 //+------------------------------------------------------------------+
-//| Block new basket if L1 direction fights the major trend           |
-//+------------------------------------------------------------------+
-bool PassMajorTrendGuard(ENUM_DIRECTION direction, string &reason)
-{
-   reason = "";
-   if(!InpUseMajorTrendGuard || direction == DIR_NONE)
-      return true;
-
-   string majorReason = "";
-   ENUM_DIRECTION majorDir = GetMajorTrendDirection(majorReason);
-   if(majorDir == DIR_NONE)
-   {
-      reason = majorReason;
-      return true;
-   }
-
-   if(direction != majorDir)
-   {
-      reason = majorReason;
-      return false;
-   }
-
-   reason = majorReason;
-   return true;
-}
-
-//+------------------------------------------------------------------+
 //| Analyze Daily Direction (for Martingale)                          |
 //+------------------------------------------------------------------+
 ENUM_DIRECTION AnalyzeDailyDirection()
@@ -2401,6 +2373,14 @@ ENUM_DIRECTION AnalyzeDailyDirection()
    if(CopyBuffer(g_handleEmaFast, 0, 0, 10, emaFast) <= 0) return DIR_BUY;
    if(CopyBuffer(g_handleEmaSlow, 0, 0, 10, emaSlow) <= 0) return DIR_BUY;
    if(CopyBuffer(g_handleRsi, 0, 0, 10, rsi) <= 0) return DIR_BUY;
+
+   string majorReason = "";
+   ENUM_DIRECTION majorDir = GetMajorTrendDirection(majorReason);
+   if(InpUseMajorTrendGuard && majorDir != DIR_NONE)
+   {
+      Print("[DIR-BIAS] Major trend selected ", EnumToString(majorDir), ": ", majorReason);
+      return majorDir;
+   }
 
    int buyScore = 0;
    int sellScore = 0;
@@ -2750,14 +2730,6 @@ void RunMartingaleBot()
             }
          }
 
-         string majorTrendReason = "";
-         if(!PassMajorTrendGuard(g_martDirection, majorTrendReason))
-         {
-            Print("[MAJOR-TREND-GUARD] Blocked L1 ", EnumToString(g_martDirection), ": ", majorTrendReason);
-            SetTradeStatus("WAIT MAJOR TREND");
-            g_martDirection = DIR_NONE;
-            return;
-         }
       }
 
       Print("[MARTINGALE] No positions. Direction: ", EnumToString(g_martDirection));
@@ -3198,22 +3170,6 @@ void RunMartingaleBot()
       bool shouldEnter = false;
       string reason = "";
       int nextLevel = currentLevel + 1;
-
-      if(nextLevel >= InpMajorTrendGuardAddsFromLevel)
-      {
-         string majorTrendReason = "";
-         if(!PassMajorTrendGuard(direction, majorTrendReason))
-         {
-            SetTradeStatus("WAIT MAJOR TREND");
-            static datetime lastMajorAddBlockLog = 0;
-            if(TimeCurrent() - lastMajorAddBlockLog >= 60)
-            {
-               lastMajorAddBlockLog = TimeCurrent();
-               Print("[MAJOR-TREND-GUARD] Blocked L", nextLevel, " add ", EnumToString(direction), ": ", majorTrendReason);
-            }
-            return;
-         }
-      }
 
       if(!InpMartStrictSmcEntry)
       {
