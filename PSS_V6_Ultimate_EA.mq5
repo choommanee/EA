@@ -104,6 +104,11 @@ input double          InpEmergencyMarginPct = 30.0; // Emergency Margin Level % 
 input group "=== DIRECTION FILTER (EMA & RSI) ==="
 input ENUM_TIMEFRAMES InpHtfPeriod = PERIOD_H1;     // HTF Period for Trend Filter
 input bool            InpUseHtfFilter = true;        // Use Strict HTF Trend Filter
+input bool            InpUseMajorTrendGuard = true;  // Block L1 against major trend
+input ENUM_TIMEFRAMES InpMajorTrendPeriod = PERIOD_H4; // Major Trend Period
+input int             InpMajorTrendFastEma = 50;     // Major Trend Fast EMA
+input int             InpMajorTrendSlowEma = 200;    // Major Trend Slow EMA
+input int             InpMajorTrendSlopeBars = 12;   // Major Trend Slope Bars
 input int             InpMomEmaFast = 8;            // EMA Fast Period
 input int             InpMomEmaSlow = 21;           // EMA Slow Period
 input int             InpMomRsiPeriod = 14;         // RSI Period
@@ -2286,6 +2291,103 @@ ENUM_DIRECTION GetHTFTrendDirection()
 }
 
 //+------------------------------------------------------------------+
+//| Get major trend direction for L1 anti-trap guard                  |
+//+------------------------------------------------------------------+
+ENUM_DIRECTION GetMajorTrendDirection(string &reason)
+{
+   reason = "";
+
+   int fastPeriod = MathMax(2, InpMajorTrendFastEma);
+   int slowPeriod = MathMax(fastPeriod + 1, InpMajorTrendSlowEma);
+   int slopeBars = MathMax(3, InpMajorTrendSlopeBars);
+
+   double emaFast[], emaSlow[], close[];
+   ArraySetAsSeries(emaFast, true);
+   ArraySetAsSeries(emaSlow, true);
+   ArraySetAsSeries(close, true);
+
+   int fastHandle = iMA(_Symbol, InpMajorTrendPeriod, fastPeriod, 0, MODE_EMA, PRICE_CLOSE);
+   int slowHandle = iMA(_Symbol, InpMajorTrendPeriod, slowPeriod, 0, MODE_EMA, PRICE_CLOSE);
+
+   if(fastHandle == INVALID_HANDLE || slowHandle == INVALID_HANDLE)
+   {
+      if(fastHandle != INVALID_HANDLE) IndicatorRelease(fastHandle);
+      if(slowHandle != INVALID_HANDLE) IndicatorRelease(slowHandle);
+      reason = "major trend handles unavailable";
+      return DIR_NONE;
+   }
+
+   int barsNeeded = slopeBars + 2;
+   int copiedFast = CopyBuffer(fastHandle, 0, 0, barsNeeded, emaFast);
+   int copiedSlow = CopyBuffer(slowHandle, 0, 0, barsNeeded, emaSlow);
+   int copiedClose = CopyClose(_Symbol, InpMajorTrendPeriod, 0, barsNeeded, close);
+
+   IndicatorRelease(fastHandle);
+   IndicatorRelease(slowHandle);
+
+   int copied = MathMin(MathMin(copiedFast, copiedSlow), copiedClose);
+   if(copied <= slopeBars)
+   {
+      reason = "major trend needs more bars";
+      return DIR_NONE;
+   }
+
+   bool bullish = emaFast[1] > emaSlow[1] &&
+                  close[1] > emaFast[1] &&
+                  emaFast[1] > emaFast[slopeBars] &&
+                  close[1] > close[slopeBars];
+
+   bool bearish = emaFast[1] < emaSlow[1] &&
+                  close[1] < emaFast[1] &&
+                  emaFast[1] < emaFast[slopeBars] &&
+                  close[1] < close[slopeBars];
+
+   if(bullish)
+   {
+      reason = "major BUY " + EnumToString(InpMajorTrendPeriod) +
+               " EMA" + IntegerToString(fastPeriod) + ">EMA" + IntegerToString(slowPeriod);
+      return DIR_BUY;
+   }
+
+   if(bearish)
+   {
+      reason = "major SELL " + EnumToString(InpMajorTrendPeriod) +
+               " EMA" + IntegerToString(fastPeriod) + "<EMA" + IntegerToString(slowPeriod);
+      return DIR_SELL;
+   }
+
+   reason = "major trend mixed";
+   return DIR_NONE;
+}
+
+//+------------------------------------------------------------------+
+//| Block new basket if L1 direction fights the major trend           |
+//+------------------------------------------------------------------+
+bool PassMajorTrendGuard(ENUM_DIRECTION direction, string &reason)
+{
+   reason = "";
+   if(!InpUseMajorTrendGuard || direction == DIR_NONE)
+      return true;
+
+   string majorReason = "";
+   ENUM_DIRECTION majorDir = GetMajorTrendDirection(majorReason);
+   if(majorDir == DIR_NONE)
+   {
+      reason = majorReason;
+      return true;
+   }
+
+   if(direction != majorDir)
+   {
+      reason = majorReason;
+      return false;
+   }
+
+   reason = majorReason;
+   return true;
+}
+
+//+------------------------------------------------------------------+
 //| Analyze Daily Direction (for Martingale)                          |
 //+------------------------------------------------------------------+
 ENUM_DIRECTION AnalyzeDailyDirection()
@@ -2332,6 +2434,11 @@ ENUM_DIRECTION AnalyzeDailyDirection()
       buyScore += 2;
    else if(smcDir == DIR_SELL)
       sellScore += 2;
+
+   Print("[DIR-SCORE] BUY=", buyScore, " SELL=", sellScore,
+         " HTF_EMA=", (emaFast[0] > emaSlow[0] ? "BUY" : "SELL"),
+         " RSI=", DoubleToString(rsi[0], 1),
+         " SMC=", EnumToString(smcDir));
 
    return (buyScore > sellScore) ? DIR_BUY : DIR_SELL;
 }
@@ -2636,9 +2743,19 @@ void RunMartingaleBot()
             if(htfDir != DIR_NONE && g_martDirection != htfDir)
             {
                Print("[HTF-FILTER] Blocked L1 entry in ", EnumToString(g_martDirection), " direction because HTF trend is ", EnumToString(htfDir));
+               SetTradeStatus("WAIT HTF TREND");
                g_martDirection = DIR_NONE;
                return;
             }
+         }
+
+         string majorTrendReason = "";
+         if(!PassMajorTrendGuard(g_martDirection, majorTrendReason))
+         {
+            Print("[MAJOR-TREND-GUARD] Blocked L1 ", EnumToString(g_martDirection), ": ", majorTrendReason);
+            SetTradeStatus("WAIT MAJOR TREND");
+            g_martDirection = DIR_NONE;
+            return;
          }
       }
 
