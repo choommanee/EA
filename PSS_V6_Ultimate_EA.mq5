@@ -72,6 +72,10 @@ input double          InpMartTPAtrMultiplier = 0.35; // ATR part for Basket TP
 input double          InpMartTPMinPips = 8.0;       // Minimum Basket TP from AvgPrice (pips)
 input double          InpMartTPMaxPips = 80.0;      // Maximum Basket TP from AvgPrice (pips)
 input double          InpMartProfitPer001Lot = 1.0; // Minimum $ profit per 0.01 total lot
+input bool            InpMartUseRecoveryProfitTP = true; // Scale TP by basket max floating DD
+input int             InpMartRecoveryTPMinLevel = 4; // Start DD-scaled TP from level
+input double          InpMartRecoveryTPPercent = 15.0; // Target % of basket max floating DD
+input double          InpMartRecoveryTPMaxUSD = 0.0; // Max DD-scaled TP (0=off)
 input bool            InpMartAutoDirection = true;  // Auto Direction (AI)
 input bool            InpMartUseATR = true;         // Use ATR Dynamic Grid
 input double          InpMartAtrMultiplier = 1.5;   // ATR Multiplier for Grid Spacing
@@ -248,6 +252,7 @@ datetime g_lastErrorTime = 0;
 datetime g_lastTPDebugTime = 0;
 double g_calcTPPrice = 0;
 double g_calcTargetProfit = 0;
+double g_basketMaxFloatingLoss = 0;
 bool g_tpPending = false;
 string g_tradeStatus = "INIT";
 
@@ -2636,6 +2641,7 @@ void RunMartingaleBot()
          g_breakevenMoved = false;
          g_partialClosed = false;
          g_highestProfitPips = 0;
+         g_basketMaxFloatingLoss = 0;
          Print("[TP-RETRY] SUCCESS! All positions closed!");
       }
       else
@@ -2651,6 +2657,7 @@ void RunMartingaleBot()
       g_breakevenMoved = false;
       g_partialClosed = false;
       g_highestProfitPips = 0;
+      g_basketMaxFloatingLoss = 0;
       Print("[TP-RETRY] Positions closed (externally). Reset.");
       return;
    }
@@ -2669,6 +2676,7 @@ void RunMartingaleBot()
          g_breakevenMoved = false;
          g_partialClosed = false;
          g_highestProfitPips = 0;
+         g_basketMaxFloatingLoss = 0;
       }
       return;
    }
@@ -2687,6 +2695,7 @@ void RunMartingaleBot()
             g_breakevenMoved = false;
             g_partialClosed = false;
             g_highestProfitPips = 0;
+            g_basketMaxFloatingLoss = 0;
          }
          return;
       }
@@ -2795,6 +2804,9 @@ void RunMartingaleBot()
    if(profitPips > g_highestProfitPips)
       g_highestProfitPips = profitPips;
 
+   if(stats.totalProfit < 0)
+      g_basketMaxFloatingLoss = MathMax(g_basketMaxFloatingLoss, MathAbs(stats.totalProfit));
+
    // ================================================================
    // TP CHECK FIRST! (Before Breakeven / Partial Close)
    // ================================================================
@@ -2851,6 +2863,19 @@ void RunMartingaleBot()
          tpDist = (targetProfit / stats.totalLot) * (tickSz / tickVal);
    }
 
+   if(InpMartUseRecoveryProfitTP && stats.totalPositions >= InpMartRecoveryTPMinLevel && g_basketMaxFloatingLoss > 0)
+   {
+      double recoveryTarget = g_basketMaxFloatingLoss * (InpMartRecoveryTPPercent / 100.0);
+      if(InpMartRecoveryTPMaxUSD > 0)
+         recoveryTarget = MathMin(recoveryTarget, InpMartRecoveryTPMaxUSD);
+      targetProfit = MathMax(targetProfit, recoveryTarget);
+
+      double tickVal = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+      double tickSz = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+      if(stats.totalLot > 0 && tickVal > 0)
+         tpDist = (targetProfit / stats.totalLot) * (tickSz / tickVal);
+   }
+
    g_calcTargetProfit = targetProfit;
 
    // Calculate TP price level for visual display and price-based backup close
@@ -2871,7 +2896,8 @@ void RunMartingaleBot()
             " | TP Price: ", DoubleToString(g_calcTPPrice, _Digits),
             " | Lots: ", DoubleToString(stats.totalLot, 2),
             " | Pos: ", stats.totalPositions,
-            " | ProfitPips: ", DoubleToString(profitPips, 1));
+            " | ProfitPips: ", DoubleToString(profitPips, 1),
+            " | BasketMaxDD: $", DoubleToString(g_basketMaxFloatingLoss, 2));
    }
 
    // Check take profit
@@ -2948,6 +2974,7 @@ void RunMartingaleBot()
          g_breakevenMoved = false;
          g_partialClosed = false;
          g_highestProfitPips = 0;
+         g_basketMaxFloatingLoss = 0;
       }
       else
       {
