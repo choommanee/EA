@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(dir)",
+      "WebFetch(domain:www.axiory.com)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(grep:*)",
+      "WebSearch",
+      "Bash(powershell \"Get-Content SmartGridEA_Clean.mq5 | Select-Object -Skip 259 -First 1 | ForEach-Object { $_ToCharArray() | ForEach-Object -Begin { $i = 1 } -Process { Write-Host -NoNewline (''{0:D2}:{1} '' -f $i, $_; $i++ } }\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

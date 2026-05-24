@@ -1,0 +1,56 @@
+{
+  "enabled": true,
+  "channels": {
+    "log": {
+      "enabled": true,
+      "levels": [
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+      ]
+    },
+    "email": {
+      "enabled": false,
+      "smtp_server": "smtp.gmail.com",
+      "smtp_port": 587,
+      "username": "",
+      "password": "",
+      "from_email": "",
+      "to_emails": [],
+      "levels": [
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+      ]
+    },
+    "webhook": {
+      "enabled": false,
+      "url": "",
+      "headers": {},
+      "levels": [
+        "ERROR",
+        "CRITICAL"
+      ]
+    },
+    "telegram": {
+      "enabled": false,
+      "bot_token": "",
+      "chat_id": "",
+      "levels": [
+        "WARNING",
+        "ERROR",
+        "CRITICAL"
+      ]
+    }
+  },
+  "rate_limiting": {
+    "enabled": true,
+    "default_interval_minutes": 5
+  },
+  "alert_thresholds": {
+    "error_count": 5,
+    "performance_degradation": 0.1,
+    "system_downtime_minutes": 30
+  }
+}

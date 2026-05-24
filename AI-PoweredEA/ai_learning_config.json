@@ -1,0 +1,33 @@
+{
+  "learning": {
+    "enabled": true,
+    "update_frequency": "daily",
+    "performance_threshold": 0.75,
+    "max_models": 10
+  },
+  "performance": {
+    "monitoring_enabled": true,
+    "alert_threshold": 0.6,
+    "reporting_frequency": "hourly"
+  },
+  "security": {
+    "encryption_enabled": true,
+    "session_timeout": 3600,
+    "audit_logging": true
+  },
+  "trading": {
+    "pairs": [
+      "EURUSD",
+      "GBPUSD",
+      "USDJPY"
+    ],
+    "timeframes": [
+      "H1",
+      "H4"
+    ],
+    "risk_management": {
+      "max_risk_per_trade": 0.02,
+      "max_daily_loss": 0.05
+    }
+  }
+}

@@ -1,0 +1,800 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+  <head>
+    <title>Strategy Tester Report</title>
+    <meta name="generator" content="strategy tester">
+    <style type="text/css">
+    <!--
+    @media screen {
+      td { font: 8pt  Tahoma,Arial; }
+      th { font: 10pt Tahoma,Arial; }
+    }
+    @media print {
+      td { font: 7pt Tahoma,Arial; }
+      th { font: 9pt Tahoma,Arial; }
+    }
+    .msdate { mso-number-format:"General Date"; }
+    .mspt   { mso-number-format:\#\,\#\#0\.00;  }
+    body {margin:1px;}
+    //-->
+    </style>
+  </head>
+<body>
+<div align="center">
+<table cellspacing="1" cellpadding="3" border="0">
+   <tr align="center">
+      <td colspan="13"><div style="font: 14pt Tahoma"><b>Strategy Tester Report</b><br></div></td>
+   </tr>
+   <tr align="center">
+      <td colspan="13"><div style="font: 10pt Tahoma"><b>VTMarkets-Demo (Build 5833)</b><br></div></td>
+   </tr>
+   <tr>
+      <td nowrap style="height: 10px"></td>
+    </tr>
+   <tr>
+      <td colspan="13" align="center"><div style="font: 10pt Tahoma"><b>Settings</b></div></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Expert:</td>
+      <td nowrap colspan="10" align="left"><b>PSS_V6_Ultimate_EA</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Symbol:</td>
+      <td nowrap colspan="10" align="left"><b>XAUUSD-VIP</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Period:</td>
+      <td nowrap colspan="10" align="left"><b>M3 (2025.04.01 - 2026.05.23)</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Inputs:</td>
+      <td nowrap colspan="10" align="left"><b>=== GENERAL SETTINGS ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpBotMode=1</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpBaseLot=0.01</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSlippage=50</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpShowPanel=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpFillingMode=1</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMaxRetries=10</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpRetryDelayMs=500</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>=== RISK MANAGEMENT ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpDailyProfitTarget=100.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpDailyLossLimit=50.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMaxTotalLot=100</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpUseRiskPercent=false</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpRiskPercent=1.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMaxConsecutiveLoss=5</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMaxDrawdownPercent=20.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>=== MARTINGALE BOT (Magic: 777777) ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMartMultiplier=1.5</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMartMaxLevel=20</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMartMinDistance=20</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMartFallbackDist=40</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMartTakeProfitUSD=5.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMartMinProfitUSD=1.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMartAutoDirection=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>=== SOLUTION 1: SAFETY FEATURES (Web Research) ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpBreakevenEnabled=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpBreakevenTrigger=17</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpBreakevenOffset=2</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpPartialCloseEnabled=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpPartialClosePips=15</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpPartialClosePct=50</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpTrendFilterEnabled=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpTrendRevExitEnabled=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpTrendRevCandles=5</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpTrendRevLossPct=20.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpEmergencyExitEnabled=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpEmergencyMarginPct=30.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>=== SMC TREND BOT (Magic: 999999) ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSmcMaxOrders=5</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSmcTakeProfit=50</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSmcStopLoss=40</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSmcAddDistance=15</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSmcTrailing=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSmcTrailStart=30</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSmcTrailStep=15</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>=== GRID BOT (Magic: 666666) ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpGridLevels=5</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpGridSpacing=15</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpGridTakeProfit=10</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpGridMaxPositions=10</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpGridDailyLossLimit=30.0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpGridAutoReset=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>=== MOMENTUM BOT (Magic: 555555) ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMomEmaFast=8</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMomEmaSlow=21</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMomRsiPeriod=14</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMomAtrMultiplier=1.5</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMomTrailing=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>=== SMC ANALYSIS SETTINGS ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpSwingLookback=10</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpObLookback=20</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpLqLookback=15</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpBosLookback=50</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpMinSmcScore=3</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>=== SESSION FILTER ====</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpUseSessionFilter=true</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpAsianStart=0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpAsianEnd=8</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpLondonStart=8</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpLondonEnd=16</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpNYStart=13</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="10" align="left"><b>InpNYEnd=21</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3" >Company:</td>
+      <td nowrap colspan="10" align="left"><b>VT Markets (Pty) Ltd</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3" >Currency:</td>
+      <td nowrap colspan="10" align="left"><b>profit in pips</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3" >Initial Deposit:</td>
+      <td nowrap colspan="10" align="left"><b>1 000.00</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3" >Leverage:</td>
+      <td nowrap colspan="10" align="left"><b>1:500</b></td>
+   </tr>
+   <tr>
+      <td nowrap style="height: 10px"></td>
+    </tr>
+   <tr>
+      <td colspan="13" align="center"><div style="font: 10pt Tahoma"><b>Results</b></div></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">History Quality:</td>
+      <td nowrap><b>99%</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Bars:</td>
+      <td nowrap><b>1210</b></td>
+      <td nowrap colspan="3">Ticks:</td>
+      <td nowrap><b>431086</b></td>
+      <td nowrap colspan="3">Symbols:</td>
+      <td nowrap colspan="2"><b>1</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Total Net Profit:</td>
+      <td nowrap><b>-963.34</b></td>
+      <td nowrap colspan="3">Balance Drawdown Absolute:</td>
+      <td nowrap><b>963.34</b></td>
+      <td nowrap colspan="3">Equity Drawdown Absolute:</td>
+      <td nowrap colspan="2"><b>1 070.74</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Gross Profit:</td>
+      <td nowrap><b>182.01</b></td>
+      <td nowrap colspan="3">Balance Drawdown Maximal:</td>
+      <td nowrap><b>1 130.54 (96.86%)</b></td>
+      <td nowrap colspan="3">Equity Drawdown Maximal:</td>
+      <td nowrap colspan="2"><b>2 756.10 (102.63%)</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Gross Loss:</td>
+      <td nowrap><b>-1 145.35</b></td>
+      <td nowrap colspan="3">Balance Drawdown Relative:</td>
+      <td nowrap><b>96.86% (1 130.54)</b></td>
+      <td nowrap colspan="3">Equity Drawdown Relative:</td>
+      <td nowrap colspan="2"><b>102.63% (2 756.10)</b></td>
+   </tr>
+   <tr>
+      <td nowrap style="height: 10px"></td>
+    </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Profit Factor:</td>
+      <td nowrap><b>0.16</b></td>
+      <td nowrap colspan="3">Expected Payoff:</td>
+      <td nowrap><b>-18.89</b></td>
+      <td nowrap colspan="3">Margin Level:</td>
+      <td nowrap colspan="2"><b>19.60%</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Recovery Factor:</td>
+      <td nowrap><b>-0.35</b></td>
+      <td nowrap colspan="3">Sharpe Ratio:</td>
+      <td nowrap><b>-5.00</b></td>
+      <td nowrap colspan="3">Z-Score:</td>
+      <td nowrap colspan="2"><b>-2.63 (99.15%)</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">AHPR:</td>
+      <td nowrap><b>0.9547 (-4.53%)</b></td>
+      <td nowrap colspan="3">LR Correlation:</td>
+      <td nowrap><b>-0.32</b></td>
+      <td nowrap colspan="3">OnTester result:</td>
+      <td nowrap colspan="2"><b>0</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">GHPR:</td>
+      <td nowrap><b>0.9372 (-6.28%)</b></td>
+      <td nowrap colspan="3">LR Standard Error:</td>
+      <td nowrap><b>233.94</b></td>
+      <td nowrap colspan="3"></td>
+      <td nowrap colspan="2"><b></b></td>
+   </tr>
+   <tr>
+      <td nowrap style="height: 10px"></td>
+    </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Total Trades:</td>
+      <td nowrap><b>51</b></td>
+      <td nowrap colspan="3">Short Trades (won %):</td>
+      <td nowrap><b>24 (79.17%)</b></td>
+      <td nowrap colspan="3">Long Trades (won %):</td>
+      <td nowrap colspan="2"><b>27 (62.96%)</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Total Deals:</td>
+      <td nowrap><b>102</b></td>
+      <td nowrap colspan="3">Profit Trades (% of total):</td>
+      <td nowrap><b>36 (70.59%)</b></td>
+      <td nowrap colspan="3">Loss Trades (% of total):</td>
+      <td nowrap colspan="2"><b>15 (29.41%)</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="4"></td>
+      <td nowrap colspan="3">Largest profit trade:</td>
+      <td nowrap><b>47.25</b></td>
+      <td nowrap colspan="3">Largest loss trade:</td>
+      <td nowrap colspan="2"><b>-376.64</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="4"></td>
+      <td nowrap colspan="3">Average profit trade:</td>
+      <td nowrap><b>5.06</b></td>
+      <td nowrap colspan="3">Average loss trade:</td>
+      <td nowrap colspan="2"><b>-76.36</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="4"></td>
+      <td nowrap colspan="3">Maximum consecutive wins ($):</td>
+      <td nowrap><b>19 (57.99)</b></td>
+      <td nowrap colspan="3">Maximum consecutive losses ($):</td>
+      <td nowrap colspan="2"><b>7 (-1 128.89)</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="4"></td>
+      <td nowrap colspan="3">Maximal consecutive profit (count):</td>
+      <td nowrap><b>88.21 (9)</b></td>
+      <td nowrap colspan="3">Maximal consecutive loss (count):</td>
+      <td nowrap colspan="2"><b>-1 128.89 (7)</b></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="4"></td>
+      <td nowrap colspan="3">Average consecutive wins:</td>
+      <td nowrap><b>5</b></td>
+      <td nowrap colspan="3">Average consecutive losses:</td>
+      <td nowrap colspan="2"><b>2</b></td>
+   </tr>
+   <tr align="right">
+      <td colspan="13" style="height: 10px"></td>
+   </tr>
+   <tr align="center">
+      <th colspan="13"><img src="ReportTester-1114385.png" title="Balance graph" width=820 height=200 border=0 alt="Graph"></th>
+   </tr>
+   <tr align="right">
+      <td colspan="13" style="height: 10px"></td>
+   </tr>
+   <tr align="center">
+      <th colspan="13"><img src="ReportTester-1114385-hst.png" width=860 height=400 border=0 alt="Graph"></th>
+   </tr>
+   <tr align="right">
+      <td colspan="13" style="height: 10px"></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Correlation (Profits,MFE):</td>
+      <td nowrap><b>-0.98</b></td>
+      <td nowrap colspan="3">Correlation (Profits,MAE):</td>
+      <td nowrap><b>0.97</b></td>
+      <td nowrap colspan="3">Correlation (MFE,MAE):</td>
+      <td nowrap colspan="2"><b>-0.9852</b></td>
+   </tr>
+   <tr align="center">
+      <th colspan="13"><img src="ReportTester-1114385-mfemae.png" width=860 height=400 border=0 alt="Graph"></th>
+   </tr>
+   <tr align="right">
+      <td colspan="13" style="height: 10px"></td>
+   </tr>
+   <tr align="right">
+      <td nowrap colspan="3">Minimal position holding time:</td>
+      <td nowrap><b>0:02:05</b></td>
+      <td nowrap colspan="3">Maximal position holding time:</td>
+      <td nowrap><b>26:52:28</b></td>
+      <td nowrap colspan="3">Average position holding time:</td>
+      <td nowrap colspan="2"><b>4:58:06</b></td>
+   </tr>
+   <tr align="center">
+      <th colspan="13"><img src="ReportTester-1114385-holding.png" width=860 height=200 border=0 alt="Graph"></th>
+   </tr>
+   <tr align="right">
+      <td colspan="13" style="height: 10px"></td>
+   </tr>
+</table>
+<table cellspacing="1" cellpadding="3" border="0">
+   <tr>
+      <td style="width: 90px;height: 10px"></td>
+      <td style="width: 40px;"></td>
+      <td style="width: 60px;"></td>
+      <td style="width: 60px;"></td>
+      <td style="width: 60px;"></td>
+      <td style="width: 60px;"></td>
+      <td style="width: 60px;"></td>
+      <td style="width: 70px;"></td>
+      <td style="width: 70px;"></td>
+      <td style="width: 60px;"></td>
+      <td style="width: 60px;"></td>
+      <td style="width: 60px;"></td>
+      <td style="width: 100px;"></td>
+   </tr>
+   <tr align="center">
+      <th colspan="13" style="height: 25px"><div style="font: 10pt Tahoma"><b>Orders</b></div></th>
+   </tr>
+   <tr align="center" bgcolor="#E5F0FC">
+      <td nowrap style="height: 30px"><b>Open Time</b></td>
+      <td nowrap><b>Order</b></td>
+      <td nowrap><b>Symbol</b></td>
+      <td nowrap><b>Type</b></td>
+      <td nowrap colspan="2"><b>Volume</b></td>
+      <td nowrap><b>Price</b></td>
+      <td nowrap><b>S / L</b></td>
+      <td nowrap><b>T / P</b></td>
+      <td nowrap colspan="2"><b>Time</b></td>
+      <td nowrap><b>State</b></td>
+      <td nowrap><b>Comment</b></td>
+   </tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 01:16:40</td><td>2</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 01:16:40</td><td>filled</td><td>Mart L1 OB+LQ</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 02:51:36</td><td>3</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 02:51:36</td><td>filled</td><td>sl 3123.19</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 02:51:36</td><td>4</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 02:51:36</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 03:19:17</td><td>5</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 03:19:17</td><td>filled</td><td>Mart L2 20p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 04:01:27</td><td>6</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 04:01:27</td><td>filled</td><td>Mart L3 Fallback 52p</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 04:44:18</td><td>7</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.03 / 0.03</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 04:44:18</td><td>filled</td><td>Mart L4 Fallback 52p</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:00:37</td><td>8</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:00:37</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:00:37</td><td>9</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:00:37</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:02:15</td><td>10</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.03 / 0.03</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:02:15</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:02:15</td><td>11</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:02:15</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:22:36</td><td>12</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:22:36</td><td>filled</td><td>Mart L1 FVG+PIN</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:27:38</td><td>13</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:27:38</td><td>filled</td><td>Mart L2 Fallback 36p</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:40:29</td><td>14</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:40:29</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:45:15</td><td>15</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:45:15</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:57:02</td><td>16</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 09:57:02</td><td>filled</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 10:12:29</td><td>17</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 10:12:29</td><td>filled</td><td>Mart L2 26p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 10:17:05</td><td>18</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 10:17:05</td><td>filled</td><td>Mart L3 20p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 10:20:19</td><td>19</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 10:20:19</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 10:28:38</td><td>20</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 10:28:38</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 10:28:38</td><td>21</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 10:28:38</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 10:30:03</td><td>22</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 10:30:03</td><td>filled</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 10:37:40</td><td>23</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 10:37:40</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 11:10:27</td><td>24</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 11:10:27</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 11:22:30</td><td>25</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 11:22:30</td><td>filled</td><td>sl 3133.72</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 11:24:00</td><td>26</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 11:24:00</td><td>filled</td><td>Mart L1 FVG+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 11:33:00</td><td>27</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 11:33:00</td><td>filled</td><td>Mart L2 23p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 13:12:37</td><td>28</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 13:12:37</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 13:20:15</td><td>29</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 13:20:15</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 13:35:14</td><td>30</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 13:35:14</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 13:35:37</td><td>31</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 13:35:37</td><td>filled</td><td>Mart L2 20p+OB+LQ+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 13:37:19</td><td>32</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 13:37:19</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 13:56:01</td><td>33</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 13:56:01</td><td>filled</td><td>sl 3132.49</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 13:56:02</td><td>34</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 13:56:02</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 14:18:00</td><td>35</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 14:18:00</td><td>filled</td><td>Mart L2 34p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 14:56:40</td><td>36</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 14:56:40</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 14:56:40</td><td>37</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 14:56:40</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 15:09:03</td><td>38</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 15:09:03</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 15:23:30</td><td>39</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 15:23:30</td><td>filled</td><td>Mart L2 20p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 15:34:13</td><td>40</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 15:34:13</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 15:35:40</td><td>41</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 15:35:40</td><td>filled</td><td>sl 3133.42</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 15:35:40</td><td>42</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 15:35:40</td><td>filled</td><td>Mart L1 OB+PIN</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 16:09:20</td><td>43</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 16:09:20</td><td>filled</td><td>Mart L2 30p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 16:23:38</td><td>44</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 16:23:38</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 16:23:38</td><td>45</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 16:23:38</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 16:31:40</td><td>46</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 16:31:40</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 16:38:05</td><td>47</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 16:38:05</td><td>filled</td><td>sl 3131.56</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 16:38:17</td><td>48</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 16:38:17</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 16:51:41</td><td>49</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 16:51:41</td><td>filled</td><td>Mart L2 20p+OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 17:02:26</td><td>50</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 17:02:26</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 17:13:39</td><td>51</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 17:13:39</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 17:50:40</td><td>52</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 17:50:40</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 18:03:27</td><td>53</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 18:03:27</td><td>filled</td><td>sl 3131.36</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 18:03:37</td><td>54</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 18:03:37</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 18:26:30</td><td>55</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 18:26:30</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 19:36:00</td><td>56</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 19:36:00</td><td>filled</td><td>Mart L1 FVG+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 19:38:41</td><td>57</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 19:38:41</td><td>filled</td><td>Mart L2 Fallback 36p</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 19:58:04</td><td>58</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 19:58:04</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 20:16:28</td><td>59</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 20:16:28</td><td>filled</td><td>sl 3109.64</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 22:15:28</td><td>60</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 22:15:28</td><td>filled</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 23:30:33</td><td>61</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 23:30:33</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 23:48:23</td><td>62</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 23:48:23</td><td>filled</td><td>Mart L1 FVG+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 23:52:21</td><td>63</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 23:52:21</td><td>filled</td><td>Mart L2 33p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 23:57:14</td><td>64</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.01 23:57:14</td><td>filled</td><td>Mart L3 23p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 03:21:37</td><td>65</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 03:21:37</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 03:22:38</td><td>66</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 03:22:38</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 03:22:38</td><td>67</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 03:22:38</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 03:57:00</td><td>68</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 03:57:00</td><td>filled</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 04:07:42</td><td>69</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 04:07:42</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 04:07:42</td><td>70</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 04:07:42</td><td>filled</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 04:20:29</td><td>71</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 04:20:29</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 05:15:03</td><td>72</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 05:15:03</td><td>filled</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 05:23:40</td><td>73</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 05:23:40</td><td>filled</td><td>Mart L2 20p+OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 05:46:04</td><td>74</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 05:46:04</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 05:48:38</td><td>75</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 05:48:38</td><td>filled</td><td>sl 3131.22</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 05:48:38</td><td>76</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 05:48:38</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 05:59:29</td><td>77</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 05:59:29</td><td>filled</td><td>Mart L2 20p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 06:34:29</td><td>78</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 06:34:29</td><td>filled</td><td>Mart L3 20p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 07:03:42</td><td>79</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.03 / 0.03</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 07:03:42</td><td>filled</td><td>Mart L4 20p+FVG+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 07:39:00</td><td>80</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.05 / 0.05</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 07:39:00</td><td>filled</td><td>Mart L5 Fallback 57p</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 11:27:42</td><td>81</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.05 / 0.05</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 11:27:42</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 11:27:42</td><td>82</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.03 / 0.03</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 11:27:42</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 11:27:42</td><td>83</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 11:27:42</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 11:27:42</td><td>84</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 11:27:42</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 11:27:42</td><td>85</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 11:27:42</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 12:09:00</td><td>86</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 12:09:00</td><td>filled</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 12:24:42</td><td>87</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 12:24:42</td><td>filled</td><td>Mart L2 25p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 12:26:28</td><td>88</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 12:26:28</td><td>filled</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 12:31:35</td><td>89</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 12:31:35</td><td>filled</td><td>sl 3128.31</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 12:34:32</td><td>90</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 12:34:32</td><td>filled</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 13:28:04</td><td>91</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 13:28:04</td><td>filled</td><td>Mart L2 20p+OB+LQ+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 13:40:28</td><td>92</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 13:40:28</td><td>filled</td><td>Mart L3 Fallback 36p</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 13:41:40</td><td>93</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.03 / 0.03</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 13:41:40</td><td>filled</td><td>Mart L4 Fallback 36p</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 13:44:37</td><td>94</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.05 / 0.05</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 13:44:37</td><td>filled</td><td>Mart L5 28p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 13:45:42</td><td>95</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.07 / 0.07</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 13:45:42</td><td>filled</td><td>Mart L6 20p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 13:46:36</td><td>96</td><td>XAUUSD-VIP</td><td>buy</td><td colspan="2">0.11 / 0.11</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.02 13:46:36</td><td>filled</td><td>Mart L7 20p+OB+LQ</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.03 15:27:00</td><td>97</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.03 15:27:00</td><td>filled</td><td>so 19.60% </td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.03 15:27:00</td><td>98</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.02 / 0.02</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.03 15:27:00</td><td>filled</td><td>so 19.60% </td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.03 15:27:00</td><td>99</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.05 / 0.05</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.03 15:27:00</td><td>filled</td><td>so 19.60% </td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.03 15:27:00</td><td>100</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.11 / 0.11</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.03 15:27:00</td><td>filled</td><td>so 19.60% </td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.03 15:27:00</td><td>101</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.07 / 0.07</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.03 15:27:00</td><td>filled</td><td>end of test</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.03 15:27:00</td><td>102</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.03 / 0.03</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.03 15:27:00</td><td>filled</td><td>end of test</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.03 15:27:00</td><td>103</td><td>XAUUSD-VIP</td><td>sell</td><td colspan="2">0.01 / 0.01</td><td>0.00</td><td></td><td></td><td colspan="2">2025.04.03 15:27:00</td><td>filled</td><td>end of test</td></tr>
+   <tr>
+      <td nowrap style="height: 10px"></td>
+   </tr>
+   <tr align="center">
+      <th colspan="13" style="height: 25px"><div style="font: 10pt Tahoma"><b>Deals</b></div></th>
+   </tr>
+   <tr align="center" bgcolor="#E5F0FC">
+      <td nowrap style="height: 30px"><b>Time</b></td>
+      <td nowrap><b>Deal</b></td>
+      <td nowrap><b>Symbol</b></td>
+      <td nowrap><b>Type</b></td>
+      <td nowrap><b>Direction</b></td>
+      <td nowrap><b>Volume</b></td>
+      <td nowrap><b>Price</b></td>
+      <td nowrap><b>Order</b></td>
+      <td nowrap><b>Commission</b></td>
+      <td nowrap><b>Swap</b></td>
+      <td nowrap><b>Profit</b></td>
+      <td nowrap><b>Balance</b></td>
+      <td nowrap><b>Comment</b></td>
+   </tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 00:00:00</td><td>1</td><td></td><td>balance</td><td></td><td></td><td></td><td></td><td>0.00</td><td>0.00</td><td>1 000.00</td><td>1 000.00</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 01:16:40</td><td>2</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3122.99</td><td>2</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 000.00</td><td>Mart L1 OB+LQ</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 02:51:36</td><td>3</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3123.13</td><td>3</td><td>0.00</td><td>0.00</td><td>0.14</td><td>1 000.14</td><td>sl 3123.19</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 02:51:36</td><td>4</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3123.13</td><td>4</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 000.14</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 03:19:17</td><td>5</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3125.01</td><td>5</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 000.14</td><td>Mart L2 20p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 04:01:27</td><td>6</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.02</td><td>3130.10</td><td>6</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 000.14</td><td>Mart L3 Fallback 52p</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 04:44:18</td><td>7</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.03</td><td>3135.20</td><td>7</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 000.14</td><td>Mart L4 Fallback 52p</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:00:37</td><td>8</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3129.15</td><td>8</td><td>0.00</td><td>0.00</td><td>-6.02</td><td>994.12</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:00:37</td><td>9</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3129.15</td><td>9</td><td>0.00</td><td>0.00</td><td>-4.14</td><td>989.98</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:02:15</td><td>10</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.03</td><td>3128.13</td><td>10</td><td>0.00</td><td>0.00</td><td>21.21</td><td>1 011.19</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:02:15</td><td>11</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.02</td><td>3128.13</td><td>11</td><td>0.00</td><td>0.00</td><td>3.94</td><td>1 015.13</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:22:36</td><td>12</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3134.52</td><td>12</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 015.13</td><td>Mart L1 FVG+PIN</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:27:38</td><td>13</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3138.00</td><td>13</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 015.13</td><td>Mart L2 Fallback 36p</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:40:29</td><td>14</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3134.87</td><td>14</td><td>0.00</td><td>0.00</td><td>-0.35</td><td>1 014.78</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 09:45:15</td><td>15</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3132.99</td><td>15</td><td>0.00</td><td>0.00</td><td>5.01</td><td>1 019.79</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 09:57:02</td><td>16</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3132.99</td><td>16</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 019.79</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 10:12:29</td><td>17</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3135.54</td><td>17</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 019.79</td><td>Mart L2 26p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 10:17:05</td><td>18</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.02</td><td>3137.44</td><td>18</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 019.79</td><td>Mart L3 20p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 10:20:19</td><td>19</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3134.44</td><td>19</td><td>0.00</td><td>0.00</td><td>-1.45</td><td>1 018.34</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 10:28:38</td><td>20</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.02</td><td>3131.72</td><td>20</td><td>0.00</td><td>0.00</td><td>11.44</td><td>1 029.78</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 10:28:38</td><td>21</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3131.72</td><td>21</td><td>0.00</td><td>0.00</td><td>3.82</td><td>1 033.60</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 10:30:03</td><td>22</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3132.99</td><td>22</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 033.60</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 10:37:40</td><td>23</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3127.96</td><td>23</td><td>0.00</td><td>0.00</td><td>5.03</td><td>1 038.63</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 11:10:27</td><td>24</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3133.92</td><td>24</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 038.63</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 11:22:30</td><td>25</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3133.72</td><td>25</td><td>0.00</td><td>0.00</td><td>0.20</td><td>1 038.83</td><td>sl 3133.72</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 11:24:00</td><td>26</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3134.00</td><td>26</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 038.83</td><td>Mart L1 FVG+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 11:33:00</td><td>27</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3131.80</td><td>27</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 038.83</td><td>Mart L2 23p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 13:12:37</td><td>28</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3134.29</td><td>28</td><td>0.00</td><td>0.00</td><td>0.29</td><td>1 039.12</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 13:20:15</td><td>29</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3136.82</td><td>29</td><td>0.00</td><td>0.00</td><td>5.02</td><td>1 044.14</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 13:35:14</td><td>30</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3134.20</td><td>30</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 044.14</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 13:35:37</td><td>31</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3132.29</td><td>31</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 044.14</td><td>Mart L2 20p+OB+LQ+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 13:37:19</td><td>32</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3134.65</td><td>32</td><td>0.00</td><td>0.00</td><td>0.45</td><td>1 044.59</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 13:56:01</td><td>33</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3132.49</td><td>33</td><td>0.00</td><td>0.00</td><td>0.20</td><td>1 044.79</td><td>sl 3132.49</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 13:56:02</td><td>34</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3132.47</td><td>34</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 044.79</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 14:18:00</td><td>35</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3135.82</td><td>35</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 044.79</td><td>Mart L2 34p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 14:56:40</td><td>36</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3129.12</td><td>36</td><td>0.00</td><td>0.00</td><td>6.70</td><td>1 051.49</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 14:56:40</td><td>37</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3129.12</td><td>37</td><td>0.00</td><td>0.00</td><td>3.35</td><td>1 054.84</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 15:09:03</td><td>38</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3131.74</td><td>38</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 054.84</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 15:23:30</td><td>39</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3133.62</td><td>39</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 054.84</td><td>Mart L2 20p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 15:34:13</td><td>40</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3131.30</td><td>40</td><td>0.00</td><td>0.00</td><td>0.44</td><td>1 055.28</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 15:35:40</td><td>41</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3133.44</td><td>41</td><td>0.00</td><td>0.00</td><td>0.18</td><td>1 055.46</td><td>sl 3133.42</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 15:35:40</td><td>42</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3133.19</td><td>42</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 055.46</td><td>Mart L1 OB+PIN</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 16:09:20</td><td>43</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3136.13</td><td>43</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 055.46</td><td>Mart L2 30p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 16:23:38</td><td>44</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3129.64</td><td>44</td><td>0.00</td><td>0.00</td><td>6.49</td><td>1 061.95</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 16:23:38</td><td>45</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3129.64</td><td>45</td><td>0.00</td><td>0.00</td><td>3.55</td><td>1 065.50</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 16:31:40</td><td>46</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3131.76</td><td>46</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 065.50</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 16:38:05</td><td>47</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3131.60</td><td>47</td><td>0.00</td><td>0.00</td><td>0.16</td><td>1 065.66</td><td>sl 3131.56</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 16:38:17</td><td>48</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3131.74</td><td>48</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 065.66</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 16:51:41</td><td>49</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3133.62</td><td>49</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 065.66</td><td>Mart L2 20p+OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 17:02:26</td><td>50</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3131.30</td><td>50</td><td>0.00</td><td>0.00</td><td>0.44</td><td>1 066.10</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 17:13:39</td><td>51</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3128.59</td><td>51</td><td>0.00</td><td>0.00</td><td>5.03</td><td>1 071.13</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 17:50:40</td><td>52</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3131.56</td><td>52</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 071.13</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 18:03:27</td><td>53</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3131.37</td><td>53</td><td>0.00</td><td>0.00</td><td>0.19</td><td>1 071.32</td><td>sl 3131.36</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 18:03:37</td><td>54</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3131.56</td><td>54</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 071.32</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 18:26:30</td><td>55</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3126.55</td><td>55</td><td>0.00</td><td>0.00</td><td>5.01</td><td>1 076.33</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 19:36:00</td><td>56</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3106.35</td><td>56</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 076.33</td><td>Mart L1 FVG+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 19:38:41</td><td>57</td><td>XAUUSD-VIP</td><td>sell</td><td>in</td><td>0.01</td><td>3109.84</td><td>57</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 076.33</td><td>Mart L2 Fallback 36p</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 19:58:04</td><td>58</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3106.72</td><td>58</td><td>0.00</td><td>0.00</td><td>-0.37</td><td>1 075.96</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 20:16:28</td><td>59</td><td>XAUUSD-VIP</td><td>buy</td><td>out</td><td>0.01</td><td>3109.67</td><td>59</td><td>0.00</td><td>0.00</td><td>0.17</td><td>1 076.13</td><td>sl 3109.64</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 22:15:28</td><td>60</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3115.45</td><td>60</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 076.13</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 23:30:33</td><td>61</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3120.46</td><td>61</td><td>0.00</td><td>0.00</td><td>5.01</td><td>1 081.14</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 23:48:23</td><td>62</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3118.88</td><td>62</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 081.14</td><td>Mart L1 FVG+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.01 23:52:21</td><td>63</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3115.64</td><td>63</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 081.14</td><td>Mart L2 33p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.01 23:57:14</td><td>64</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.02</td><td>3113.45</td><td>64</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 081.14</td><td>Mart L3 23p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 03:21:37</td><td>65</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3116.73</td><td>65</td><td>0.00</td><td>0.00</td><td>-2.15</td><td>1 078.99</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 03:22:38</td><td>66</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.02</td><td>3119.20</td><td>66</td><td>0.00</td><td>0.00</td><td>11.50</td><td>1 090.49</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 03:22:38</td><td>67</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3119.20</td><td>67</td><td>0.00</td><td>0.00</td><td>3.56</td><td>1 094.05</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 03:57:00</td><td>68</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3123.12</td><td>68</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 094.05</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 04:07:42</td><td>69</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3128.16</td><td>69</td><td>0.00</td><td>0.00</td><td>5.04</td><td>1 099.09</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 04:07:42</td><td>70</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3128.37</td><td>70</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 099.09</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 04:20:29</td><td>71</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3133.37</td><td>71</td><td>0.00</td><td>0.00</td><td>5.00</td><td>1 104.09</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 05:15:03</td><td>72</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3132.90</td><td>72</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 104.09</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 05:23:40</td><td>73</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3131.02</td><td>73</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 104.09</td><td>Mart L2 20p+OB+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 05:46:04</td><td>74</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3133.38</td><td>74</td><td>0.00</td><td>0.00</td><td>0.48</td><td>1 104.57</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 05:48:38</td><td>75</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3131.21</td><td>75</td><td>0.00</td><td>0.00</td><td>0.19</td><td>1 104.76</td><td>sl 3131.22</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 05:48:38</td><td>76</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3131.46</td><td>76</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 104.76</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 05:59:29</td><td>77</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3129.54</td><td>77</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 104.76</td><td>Mart L2 20p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 06:34:29</td><td>78</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.02</td><td>3127.63</td><td>78</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 104.76</td><td>Mart L3 20p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 07:03:42</td><td>79</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.03</td><td>3125.70</td><td>79</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 104.76</td><td>Mart L4 20p+FVG+ENG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 07:39:00</td><td>80</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.05</td><td>3120.06</td><td>80</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 104.76</td><td>Mart L5 Fallback 57p</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 11:27:42</td><td>81</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.05</td><td>3129.51</td><td>81</td><td>0.00</td><td>0.00</td><td>47.25</td><td>1 152.01</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 11:27:42</td><td>82</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.03</td><td>3129.51</td><td>82</td><td>0.00</td><td>0.00</td><td>11.43</td><td>1 163.44</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 11:27:42</td><td>83</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.02</td><td>3129.51</td><td>83</td><td>0.00</td><td>0.00</td><td>3.76</td><td>1 167.20</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 11:27:42</td><td>84</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3129.51</td><td>84</td><td>0.00</td><td>0.00</td><td>-0.03</td><td>1 167.17</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 11:27:42</td><td>85</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3129.51</td><td>85</td><td>0.00</td><td>0.00</td><td>-1.95</td><td>1 165.22</td><td></td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 12:09:00</td><td>86</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3130.54</td><td>86</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.22</td><td>Mart L1 OB+ENG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 12:24:42</td><td>87</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3128.11</td><td>87</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.22</td><td>Mart L2 25p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 12:26:28</td><td>88</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3130.71</td><td>88</td><td>0.00</td><td>0.00</td><td>0.17</td><td>1 165.39</td><td></td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 12:31:35</td><td>89</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3128.27</td><td>89</td><td>0.00</td><td>0.00</td><td>0.16</td><td>1 165.55</td><td>sl 3128.31</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 12:34:32</td><td>90</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3129.04</td><td>90</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.55</td><td>Mart L1 OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 13:28:04</td><td>91</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.01</td><td>3127.15</td><td>91</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.55</td><td>Mart L2 20p+OB+LQ+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 13:40:28</td><td>92</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.02</td><td>3123.67</td><td>92</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.55</td><td>Mart L3 Fallback 36p</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 13:41:40</td><td>93</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.03</td><td>3120.17</td><td>93</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.55</td><td>Mart L4 Fallback 36p</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 13:44:37</td><td>94</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.05</td><td>3117.40</td><td>94</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.55</td><td>Mart L5 28p+OB+FVG</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.02 13:45:42</td><td>95</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.07</td><td>3115.47</td><td>95</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.55</td><td>Mart L6 20p+OB+FVG</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.02 13:46:36</td><td>96</td><td>XAUUSD-VIP</td><td>buy</td><td>in</td><td>0.11</td><td>3113.56</td><td>96</td><td>0.00</td><td>0.00</td><td>0.00</td><td>1 165.55</td><td>Mart L7 20p+OB+LQ</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.03 15:27:00</td><td>97</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3079.32</td><td>97</td><td>0.00</td><td>0.00</td><td>-49.72</td><td>1 115.83</td><td>so 19.60% </td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.03 15:27:00</td><td>98</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.02</td><td>3079.32</td><td>98</td><td>0.00</td><td>0.00</td><td>-88.70</td><td>1 027.13</td><td>so 19.60% </td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.03 15:27:00</td><td>99</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.05</td><td>3079.32</td><td>99</td><td>0.00</td><td>0.00</td><td>-190.40</td><td>836.73</td><td>so 19.60% </td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.03 15:27:00</td><td>100</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.11</td><td>3079.32</td><td>100</td><td>0.00</td><td>0.00</td><td>-376.64</td><td>460.09</td><td>so 19.60% </td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.03 15:27:00</td><td>101</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.07</td><td>3079.32</td><td>101</td><td>0.00</td><td>0.00</td><td>-253.05</td><td>207.04</td><td>end of test</td></tr>
+   <tr bgcolor="#F7F7F7" align=right><td>2025.04.03 15:27:00</td><td>102</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.03</td><td>3079.32</td><td>102</td><td>0.00</td><td>0.00</td><td>-122.55</td><td>84.49</td><td>end of test</td></tr>
+   <tr bgcolor="#FFFFFF" align=right><td>2025.04.03 15:27:00</td><td>103</td><td>XAUUSD-VIP</td><td>sell</td><td>out</td><td>0.01</td><td>3079.32</td><td>103</td><td>0.00</td><td>0.00</td><td>-47.83</td><td>36.66</td><td>end of test</td></tr>
+   <tr align="right">
+      <td nowrap colspan="8" style="height: 30px"></td>
+      <td nowrap><b>0.00</b></td>
+      <td nowrap><b>0.00</b></td>
+      <td nowrap><b>-963.34</b></td>
+      <td nowrap><b>36.66</b></td>
+      <td nowrap></td>
+   </tr>
+   <tr>
+      <td nowrap style="height: 10px"></td>
+   </tr>
+</table>
+</div>
+</body>
+</html>

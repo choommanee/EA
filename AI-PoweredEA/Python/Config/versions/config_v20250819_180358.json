@@ -1,0 +1,47 @@
+{
+  "model_training": {
+    "batch_size": 64,
+    "learning_rate": 0.005,
+    "epochs": 150,
+    "early_stopping_patience": 10,
+    "validation_split": 0.2,
+    "random_seed": 42
+  },
+  "performance_monitoring": {
+    "performance_threshold": 0.85,
+    "degradation_threshold": 0.12,
+    "monitoring_interval_minutes": 45,
+    "alert_on_degradation": true,
+    "performance_history_days": 30
+  },
+  "data_collection": {
+    "collection_interval_hours": 24,
+    "max_data_age_days": 365,
+    "data_quality_threshold": 0.8,
+    "auto_cleanup_enabled": true,
+    "backup_before_cleanup": true
+  },
+  "model_management": {
+    "max_model_versions": 10,
+    "auto_deployment_enabled": false,
+    "rollback_on_failure": true,
+    "model_storage_path": "Models/learning",
+    "compression_enabled": true
+  },
+  "notifications": {
+    "enabled": true,
+    "email_notifications": false,
+    "log_level": "INFO",
+    "alert_channels": [
+      "log"
+    ],
+    "rate_limiting_minutes": 5
+  },
+  "system": {
+    "max_concurrent_training": 2,
+    "memory_limit_gb": 8,
+    "cpu_cores": -1,
+    "gpu_enabled": false,
+    "debug_mode": false
+  }
+}

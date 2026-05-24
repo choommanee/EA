@@ -1,0 +1,147 @@
+//+------------------------------------------------------------------+
+//|                                               config_template.txt |
+//|                    Recommended Settings for Different Scenarios  |
+//+------------------------------------------------------------------+
+
+=== CONSERVATIVE SETTINGS (ความเสี่ยงต่ำ) ===
+TargetRebateDaily = 50.0
+RebatePerLot = 5.0
+LotSize = 0.1
+MaxDailyTrades = 20
+MaxDrawdownPercent = 2.0
+MaxDailyLoss = 25.0
+ProfitPips = 1
+StopLossPips = 1
+UseBreakevenStrategy = true
+
+=== AGGRESSIVE SETTINGS (ความเสี่ยงสูง) ===
+TargetRebateDaily = 150.0
+RebatePerLot = 5.0
+LotSize = 1.0
+MaxDailyTrades = 50
+MaxDrawdownPercent = 8.0
+MaxDailyLoss = 100.0
+ProfitPips = 3
+StopLossPips = 3
+UseBreakevenStrategy = true
+
+=== STANDARD SETTINGS (แนะนำ) ===
+TargetRebateDaily = 100.0
+RebatePerLot = 5.0
+LotSize = 0.5
+MaxDailyTrades = 40
+MaxDrawdownPercent = 5.0
+MaxDailyLoss = 50.0
+ProfitPips = 2
+StopLossPips = 2
+UseBreakevenStrategy = true
+
+=== BROKER SPECIFIC SETTINGS ===
+
+// XM Global
+RebatePerLot = 5.0
+MaxSpread = 3.0
+
+// IC Markets  
+RebatePerLot = 3.5
+MaxSpread = 1.5
+
+// Pepperstone
+RebatePerLot = 4.0
+MaxSpread = 2.0
+
+// FXTM
+RebatePerLot = 6.0
+MaxSpread = 4.0
+
+=== TIME FILTER SETTINGS ===
+
+// London + New York Session
+StartHour = 8
+EndHour = 22
+AvoidNews = true
+
+// Asian Session Only
+StartHour = 0
+EndHour = 8
+AvoidNews = false
+
+// New York Session Only  
+StartHour = 13
+EndHour = 22
+AvoidNews = true
+
+=== SYMBOL OPTIMIZATION ===
+
+// High Rebate Focus
+TradeEURUSD = true   // $5-7/lot
+TradeGBPUSD = true   // $6-8/lot  
+TradeUSDJPY = false  // $4-6/lot
+TradeGold = true     // $7-10/lot
+
+// Low Spread Focus
+TradeEURUSD = true   // 0.1-1.5 pips
+TradeGBPUSD = false  // 0.5-2.5 pips
+TradeUSDJPY = true   // 0.1-1.2 pips
+TradeGold = false    // 3-8 pips
+
+=== ACCOUNT SIZE RECOMMENDATIONS ===
+
+// $1,000 Account
+LotSize = 0.01
+MaxDailyLoss = 10.0
+TargetRebateDaily = 10.0
+
+// $5,000 Account  
+LotSize = 0.1
+MaxDailyLoss = 25.0
+TargetRebateDaily = 50.0
+
+// $10,000 Account
+LotSize = 0.5
+MaxDailyLoss = 50.0
+TargetRebateDaily = 100.0
+
+// $50,000+ Account
+LotSize = 2.0
+MaxDailyLoss = 200.0
+TargetRebateDaily = 400.0
+
+=== TROUBLESHOOTING ===
+
+Problem: ไม่มีสัญญาณเทรด
+Solution: ลด MaxSpread เป็น 5.0, เปลี่ยน TimeFilter
+
+Problem: ขาดทุนเกินขีดจำกัด  
+Solution: ลด LotSize, เพิ่ม StopLossPips
+
+Problem: Rebate ไม่ถึงเป้าหมาย
+Solution: เพิ่ม MaxDailyTrades, เปิด Symbol เพิ่ม
+
+Problem: Drawdown สูงเกินไป
+Solution: ลด MaxDrawdownPercent, ใช้ Conservative Settings
+
+=== OPTIMIZATION TIPS ===
+
+1. เริ่มต้นด้วย Conservative Settings
+2. ทดสอบ 1 สัปดาห์ก่อนเพิ่มความเสี่ยง  
+3. ติดตาม Rebate Rate จริงจาก Broker
+4. ปรับ TargetRebateDaily ตามผลจริง
+5. ใช้ Demo Account ทดสอบก่อน Live
+
+=== MAINTENANCE SCHEDULE ===
+
+Daily:
+- ตรวจสอบ Dashboard
+- ดู Daily Summary  
+- บันทึกผลลัพธ์
+
+Weekly:  
+- วิเคราะห์ Performance
+- ปรับ Parameters ถ้าจำเป็น
+- อัพเดท Rebate Rates
+
+Monthly:
+- Backup Settings
+- ทบทวนกลยุทธ์
+- เปรียบเทียบผลกับเป้าหมาย
