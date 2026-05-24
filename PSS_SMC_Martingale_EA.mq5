@@ -99,6 +99,25 @@ input int             InpRunawayMinLevel = 5;        // Minimum Level Before Act
 input ENUM_RUNAWAY_ACTION InpRunawayAction = RUNAWAY_CLOSE_BASKET; // Runaway Action
 input double          InpHedgeLotMultiplier = 1.0;   // Hedge Lot x Current Net Lot
 
+input group "=== MULTI-TIMEFRAME FILTER ==="
+input bool            InpUseMTFFilter = true;        // Use Higher TF Direction Filter
+input ENUM_TIMEFRAMES InpHTFPeriod = PERIOD_H1;      // Higher TF Period
+input int             InpHTFMaPeriod = 60;            // Higher TF MA Period
+
+input group "=== EMERGENCY EXIT ==="
+input bool            InpUseEmergencyExit = true;     // Emergency Exit on Pure Loss
+input double          InpEmergencyLossPct = 5.0;      // Emergency Loss % Equity
+input int             InpEmergencyDistPips = 200;     // Emergency Distance (pips)
+
+input group "=== BASKET AGE GUARD ==="
+input bool            InpUseBasketAge = true;         // Use Basket Age Guard
+input int             InpMaxBasketAgeHours = 24;      // Max Basket Age (hours)
+input int             InpStopAddAfterHours = 12;      // Stop Add After (hours)
+
+input group "=== OPPOSITE MOMENTUM BLOCK ==="
+input bool            InpBlockOnStrongOpposite = true; // Block add on strong opposite candle
+input double          InpStrongCandlePips = 30;        // Strong opposite candle size (pips)
+
 input group "=== TRADING TIME WINDOW ==="
 input bool            InpUseTradingWindow = false;   // Use Time Window
 input double          InpTimezoneUTCOffset = 7.0;    // Timezone UTC Offset (Thailand = 7)
@@ -208,6 +227,9 @@ double g_basketPeakProfit = 0;
 bool g_basketProfitTouched = false;
 double g_calcTPPrice = 0;
 double g_calcTargetProfit = 0;
+int g_handleHTFMA = INVALID_HANDLE;
+datetime g_basketOpenTime = 0;
+bool g_stopAddByAge = false;
 
 //+------------------------------------------------------------------+
 int OnInit()
@@ -221,6 +243,13 @@ int OnInit()
    {
       Print("ERROR: Failed to create runaway guard indicators");
       return INIT_FAILED;
+   }
+
+   if(InpUseMTFFilter)
+   {
+      g_handleHTFMA = iMA(_Symbol, InpHTFPeriod, InpHTFMaPeriod, 0, MODE_EMA, PRICE_CLOSE);
+      if(g_handleHTFMA == INVALID_HANDLE)
+         Print("WARNING: HTF MA indicator failed, MTF filter disabled");
    }
 
    g_dayStartBalance = AccountInfoDouble(ACCOUNT_BALANCE);
@@ -245,7 +274,11 @@ int OnInit()
             "|closeAnyPositive=" + (InpCloseAnyPositiveBasket ? "ON" : "OFF") +
             "|profitLock=" + (InpUseProfitLock ? "ON" : "OFF") +
             "|runaway=" + (InpUseRunawayGuard ? "ON" : "OFF") +
-            "|timeWindow=" + (InpUseTradingWindow ? "ON" : "OFF"),
+            "|timeWindow=" + (InpUseTradingWindow ? "ON" : "OFF") +
+            "|mtfFilter=" + (InpUseMTFFilter ? "ON" : "OFF") +
+            "|emergencyExit=" + (InpUseEmergencyExit ? "ON" : "OFF") +
+            "|basketAge=" + (InpUseBasketAge ? "ON" : "OFF") +
+            "|oppMomentum=" + (InpBlockOnStrongOpposite ? "ON" : "OFF"),
             true);
    return INIT_SUCCEEDED;
 }
@@ -257,6 +290,7 @@ void OnDeinit(const int reason)
    ObjectsDeleteAll(0, g_panelPrefix);
    if(g_handleRunawayMA != INVALID_HANDLE) IndicatorRelease(g_handleRunawayMA);
    if(g_handleRunawayADX != INVALID_HANDLE) IndicatorRelease(g_handleRunawayADX);
+   if(g_handleHTFMA != INVALID_HANDLE) IndicatorRelease(g_handleHTFMA);
    DebugLog("DEINIT", "reason=" + IntegerToString(reason), true);
    Print("PSS SMC Martingale EA deinitialized");
 }
@@ -336,6 +370,34 @@ string EntryModeText()
    return "STRICT_SMC";
 }
 
+ENUM_DIRECTION GetHTFDirection(string &reason)
+{
+   reason = "";
+   if(!InpUseMTFFilter || g_handleHTFMA == INVALID_HANDLE)
+      return DIR_NONE;
+
+   double htfMa[];
+   double htfClose[];
+   ArraySetAsSeries(htfMa, true);
+   ArraySetAsSeries(htfClose, true);
+
+   if(CopyBuffer(g_handleHTFMA, 0, 0, 3, htfMa) <= 0 ||
+      CopyClose(_Symbol, InpHTFPeriod, 0, 3, htfClose) <= 0)
+   {
+      reason = "HTF data not ready";
+      return DIR_NONE;
+   }
+
+   if(htfClose[1] >= htfMa[1])
+   {
+      reason = "HTF BUY";
+      return DIR_BUY;
+   }
+
+   reason = "HTF SELL";
+   return DIR_SELL;
+}
+
 ENUM_DIRECTION GetKillerMaDirection(string &reason)
 {
    reason = "";
@@ -353,14 +415,29 @@ ENUM_DIRECTION GetKillerMaDirection(string &reason)
 
    double refClose = close[1];
    double refMa = ma[1];
+   ENUM_DIRECTION currentDir = DIR_NONE;
    if(refClose >= refMa)
+      currentDir = DIR_BUY;
+   else
+      currentDir = DIR_SELL;
+
+   // MTF Filter: block if higher TF disagrees
+   if(InpUseMTFFilter)
    {
-      reason = "MA" + IntegerToString(InpRunawayMaPeriod) + " bias BUY";
-      return DIR_BUY;
+      string htfReason = "";
+      ENUM_DIRECTION htfDir = GetHTFDirection(htfReason);
+      if(htfDir != DIR_NONE && htfDir != currentDir)
+      {
+         reason = "MA" + IntegerToString(InpRunawayMaPeriod) + " " + DirectionText(currentDir) +
+                  " BLOCKED by " + htfReason;
+         DebugLog("MTF", "block|currentDir=" + DirectionText(currentDir) +
+                  "|htfDir=" + DirectionText(htfDir) + "|" + htfReason, false);
+         return DIR_NONE;
+      }
    }
 
-   reason = "MA" + IntegerToString(InpRunawayMaPeriod) + " bias SELL";
-   return DIR_SELL;
+   reason = "MA" + IntegerToString(InpRunawayMaPeriod) + " bias " + DirectionText(currentDir);
+   return currentDir;
 }
 
 ENUM_DIRECTION GetEntryDirection(string &reason)
@@ -1105,17 +1182,27 @@ RunawayState DetectRunaway(BasketStats &stats)
    bool lossHit = state.lossPct >= InpRunawayLossPct;
    bool levelHit = stats.maxLevel >= InpRunawayMinLevel;
 
-   if(levelHit && state.trendAgainst && (distanceHit || lossHit))
+   // Scoring system: more flexible than strict AND
+   int score = 0;
+   if(state.trendAgainst) score += 2;
+   if(distanceHit)        score += 1;
+   if(lossHit)            score += 1;
+   if(levelHit)           score += 1;
+
+   if(score >= 3)
    {
       state.active = true;
-      state.reason = "trend runaway ADX " + DoubleToString(state.adx, 1) +
+      state.reason = "runaway score " + IntegerToString(score) + "/5" +
+                     " ADX " + DoubleToString(state.adx, 1) +
                      " dist " + DoubleToString(state.distancePips, 0) + "p" +
                      " loss " + DoubleToString(state.lossPct, 1) + "%";
       DebugLog("RUNAWAY",
                "active|" + state.reason +
+               "|trendAgainst=" + (state.trendAgainst ? "true" : "false") +
                "|distanceHit=" + (distanceHit ? "true" : "false") +
                "|lossHit=" + (lossHit ? "true" : "false") +
                "|levelHit=" + (levelHit ? "true" : "false") +
+               "|score=" + IntegerToString(score) +
                "|" + BasketSummary(stats),
                true);
    }
@@ -1746,6 +1833,144 @@ SmcGate CheckEntryGate(ENUM_DIRECTION direction, bool isAdd)
 }
 
 //+------------------------------------------------------------------+
+// Emergency Exit - hard safety net, no ADX/MA required
+//+------------------------------------------------------------------+
+bool CheckEmergencyExit(BasketStats &stats)
+{
+   if(!InpUseEmergencyExit || stats.count == 0 || stats.direction == DIR_NONE)
+      return false;
+
+   double price = MidPrice();
+   double distPips = 0;
+   if(stats.direction == DIR_BUY)
+      distPips = PriceToPips(stats.avgPrice - price);
+   else
+      distPips = PriceToPips(price - stats.avgPrice);
+   distPips = MathMax(0, distPips);
+
+   double equity = AccountInfoDouble(ACCOUNT_EQUITY);
+   double lossPct = 0;
+   if(equity > 0 && stats.profit < 0)
+      lossPct = (MathAbs(stats.profit) / equity) * 100.0;
+
+   bool emergencyDist = distPips >= InpEmergencyDistPips;
+   bool emergencyLoss = lossPct >= InpEmergencyLossPct;
+
+   if(emergencyDist || emergencyLoss)
+   {
+      string reason = "EMERGENCY EXIT";
+      if(emergencyDist) reason += " dist=" + DoubleToString(distPips, 0) + "p>=" + IntegerToString(InpEmergencyDistPips);
+      if(emergencyLoss) reason += " loss=" + DoubleToString(lossPct, 1) + "%>=" + DoubleToString(InpEmergencyLossPct, 1);
+
+      Print("[EMERGENCY] ", reason, " | ", BasketSummary(stats));
+      DebugLog("EMERGENCY", reason + "|" + BasketSummary(stats), true);
+      g_closePending = true;
+      CloseAllBasket();
+      g_lastStatus = reason;
+      return true;
+   }
+
+   return false;
+}
+
+//+------------------------------------------------------------------+
+// Basket Age Guard
+//+------------------------------------------------------------------+
+datetime GetBasketOpenTime()
+{
+   datetime earliest = 0;
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      if(posInfo.SelectByIndex(i) && posInfo.Symbol() == _Symbol && posInfo.Magic() == (long)InpMagic)
+      {
+         if(earliest == 0 || posInfo.Time() < earliest)
+            earliest = posInfo.Time();
+      }
+   }
+   return earliest;
+}
+
+bool CheckBasketAgeGuard(BasketStats &stats, bool &stopAdd)
+{
+   stopAdd = false;
+   if(!InpUseBasketAge || stats.count == 0)
+   {
+      g_basketOpenTime = 0;
+      g_stopAddByAge = false;
+      return false;
+   }
+
+   g_basketOpenTime = GetBasketOpenTime();
+   if(g_basketOpenTime == 0)
+      return false;
+
+   double ageHours = (double)(TimeCurrent() - g_basketOpenTime) / 3600.0;
+
+   if(ageHours >= InpMaxBasketAgeHours)
+   {
+      string reason = "basket age " + DoubleToString(ageHours, 1) + "h >= " +
+                      IntegerToString(InpMaxBasketAgeHours) + "h";
+      Print("[AGE] Close basket: ", reason);
+      DebugLog("AGE", "close|" + reason + "|" + BasketSummary(stats), true);
+      g_closePending = true;
+      CloseAllBasket();
+      g_lastStatus = "Age guard close: " + reason;
+      return true;
+   }
+
+   if(ageHours >= InpStopAddAfterHours)
+   {
+      stopAdd = true;
+      g_stopAddByAge = true;
+      DebugLog("AGE", "stopAdd|age=" + DoubleToString(ageHours, 1) + "h|limit=" +
+               IntegerToString(InpStopAddAfterHours) + "h|" + BasketSummary(stats), false);
+   }
+   else
+   {
+      g_stopAddByAge = false;
+   }
+
+   return false;
+}
+
+//+------------------------------------------------------------------+
+// Opposite Momentum Block - block add if strong candle against basket
+//+------------------------------------------------------------------+
+bool CheckOppositeMomentumBlock(ENUM_DIRECTION basketDir)
+{
+   if(!InpBlockOnStrongOpposite || basketDir == DIR_NONE)
+      return false;
+
+   double open[], close[];
+   ArraySetAsSeries(open, true);
+   ArraySetAsSeries(close, true);
+
+   if(CopyOpen(_Symbol, PERIOD_CURRENT, 0, 2, open) <= 0 ||
+      CopyClose(_Symbol, PERIOD_CURRENT, 0, 2, close) <= 0)
+      return false;
+
+   // Check last closed bar
+   double bodyPips = PriceToPips(MathAbs(close[1] - open[1]));
+   bool bullCandle = close[1] > open[1];
+   bool bearCandle = close[1] < open[1];
+
+   bool blocked = false;
+   if(basketDir == DIR_BUY && bearCandle && bodyPips >= InpStrongCandlePips)
+      blocked = true;
+   if(basketDir == DIR_SELL && bullCandle && bodyPips >= InpStrongCandlePips)
+      blocked = true;
+
+   if(blocked)
+   {
+      DebugLog("MOMENTUM", "block add|dir=" + DirectionText(basketDir) +
+               "|candlePips=" + DoubleToString(bodyPips, 1) +
+               "|limit=" + DoubleToString(InpStrongCandlePips, 0), false);
+   }
+
+   return blocked;
+}
+
+//+------------------------------------------------------------------+
 void RunSmcMartingale()
 {
    BasketStats stats = GetBasketStats();
@@ -1778,6 +2003,15 @@ void RunSmcMartingale()
    }
 
    if(!RiskAllowsTrading(stats))
+      return;
+
+   // Emergency Exit - hard safety net
+   if(CheckEmergencyExit(stats))
+      return;
+
+   // Basket Age Guard
+   bool ageStopAdd = false;
+   if(CheckBasketAgeGuard(stats, ageStopAdd))
       return;
 
    string timeReason = "";
@@ -1852,6 +2086,37 @@ void RunSmcMartingale()
    RunawayState runaway = DetectRunaway(stats);
    if(!HandleRunaway(stats, runaway))
       return;
+
+   // MTF Filter: block add if higher TF disagrees with basket direction
+   if(InpUseMTFFilter)
+   {
+      string htfReason = "";
+      ENUM_DIRECTION htfDir = GetHTFDirection(htfReason);
+      if(htfDir != DIR_NONE && htfDir != direction)
+      {
+         g_lastStatus = "Stop add: HTF " + DirectionText(htfDir) + " vs basket " + DirectionText(direction);
+         DebugLog("MTF", "block add|basket=" + DirectionText(direction) +
+                  "|htf=" + DirectionText(htfDir) + "|" + BasketSummary(stats), false);
+         return;
+      }
+   }
+
+   // Basket age stop-add check
+   if(g_stopAddByAge)
+   {
+      g_lastStatus = "PSS SMC Martingale | Stop add: basket too old" +
+                     " | P/L $" + DoubleToString(stats.profit, 2);
+      DebugLog("AGE", "block add|" + BasketSummary(stats), false);
+      return;
+   }
+
+   // Opposite momentum block
+   if(CheckOppositeMomentumBlock(direction))
+   {
+      g_lastStatus = "PSS SMC Martingale | Stop add: strong opposite candle" +
+                     " | P/L $" + DoubleToString(stats.profit, 2);
+      return;
+   }
 
    double profitPips = (direction == DIR_BUY) ? PriceToPips(price - stats.avgPrice) : PriceToPips(stats.avgPrice - price);
 
