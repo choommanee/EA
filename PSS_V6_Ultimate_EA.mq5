@@ -109,6 +109,7 @@ input ENUM_TIMEFRAMES InpMajorTrendPeriod = PERIOD_H4; // Major Trend Period
 input int             InpMajorTrendFastEma = 50;     // Major Trend Fast EMA
 input int             InpMajorTrendSlowEma = 200;    // Major Trend Slow EMA
 input int             InpMajorTrendSlopeBars = 12;   // Major Trend Slope Bars
+input int             InpMajorTrendGuardAddsFromLevel = 4; // Block adds against major trend from level
 input int             InpMomEmaFast = 8;            // EMA Fast Period
 input int             InpMomEmaSlow = 21;           // EMA Slow Period
 input int             InpMomRsiPeriod = 14;         // RSI Period
@@ -3197,6 +3198,22 @@ void RunMartingaleBot()
       bool shouldEnter = false;
       string reason = "";
       int nextLevel = currentLevel + 1;
+
+      if(nextLevel >= InpMajorTrendGuardAddsFromLevel)
+      {
+         string majorTrendReason = "";
+         if(!PassMajorTrendGuard(direction, majorTrendReason))
+         {
+            SetTradeStatus("WAIT MAJOR TREND");
+            static datetime lastMajorAddBlockLog = 0;
+            if(TimeCurrent() - lastMajorAddBlockLog >= 60)
+            {
+               lastMajorAddBlockLog = TimeCurrent();
+               Print("[MAJOR-TREND-GUARD] Blocked L", nextLevel, " add ", EnumToString(direction), ": ", majorTrendReason);
+            }
+            return;
+         }
+      }
 
       if(!InpMartStrictSmcEntry)
       {
