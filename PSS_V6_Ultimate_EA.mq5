@@ -19,10 +19,7 @@
 enum ENUM_BOT_MODE
 {
    BOT_MANUAL = 0,        // Manual (No Bot)
-   BOT_MARTINGALE = 1,    // Martingale (SMC Entry)
-   BOT_SMC_TREND = 2,     // SMC Trend Follower
-   BOT_GRID = 3,          // Grid Bot
-   BOT_MOMENTUM = 4       // Momentum Bot
+   BOT_MARTINGALE = 1     // Martingale (SMC Entry)
 };
 
 enum ENUM_DIRECTION
@@ -69,19 +66,30 @@ input int             InpMartFallbackDist = 40;     // Fallback Distance (pips)
 input double          InpMartTakeProfitUSD = 5.0;   // Take Profit ($)
 input bool            InpMartTPScaling = false;     // Scale TP with Lot Size (true = $ per 0.01 lot)
 input double          InpMartMinProfitUSD = 1.0;    // Min Profit to Close ($)
+input bool            InpMartUseAdaptiveBasketTP = true; // Use AvgPrice + ATR/Pip Basket TP
+input double          InpMartTPBasePips = 30.0;     // Base Basket TP from AvgPrice (pips)
+input double          InpMartTPAtrMultiplier = 0.35; // ATR part for Basket TP
+input double          InpMartTPMinPips = 8.0;       // Minimum Basket TP from AvgPrice (pips)
+input double          InpMartTPMaxPips = 80.0;      // Maximum Basket TP from AvgPrice (pips)
+input double          InpMartProfitPer001Lot = 1.0; // Minimum $ profit per 0.01 total lot
+input bool            InpMartUseRecoveryProfitTP = true; // Scale TP by basket max floating DD
+input int             InpMartRecoveryTPMinLevel = 4; // Start DD-scaled TP from level
+input double          InpMartRecoveryTPPercent = 15.0; // Target % of basket max floating DD
+input double          InpMartRecoveryTPMaxUSD = 0.0; // Max DD-scaled TP (0=off)
 input bool            InpMartAutoDirection = true;  // Auto Direction (AI)
 input bool            InpMartUseATR = true;         // Use ATR Dynamic Grid
 input double          InpMartAtrMultiplier = 1.5;   // ATR Multiplier for Grid Spacing
 
 input group "=== MARTINGALE SMC/SMS PRECISION ==="
 input bool            InpMartStrictSmcEntry = false; // Require CHoCH+BOS+LQ+OB for L1/Add
-input bool            InpMartAllowFallbackAdd = true; // Allow distance-only fallback add
+input bool            InpMartAllowFallbackAdd = false; // Allow distance-only fallback add
 input bool            InpMartStopAddOnOppositeBos = false; // Stop add on opposite BOS/CHoCH
 input int             InpMartStructureLookback = 40; // Structure Lookback (bars)
 input int             InpMartLqSweepLookback = 3;   // LQ Sweep Lookback (closed bars)
 input int             InpMartObBufferPips = 10;     // OB Entry Buffer (pips)
 input bool            InpMartUseDailyHLGuard = false; // Block BUY near daily high / SELL near daily low
 input int             InpMartDailyHLBufferPips = 20; // Daily H/L Guard Buffer (pips)
+input int             InpMartCooldownMinutes = 5;    // Cooldown between adds (minutes)
 
 input group "=== SOLUTION 1: SAFETY FEATURES (Web Research) ==="
 input bool            InpBreakevenEnabled = false;  // Enable Breakeven SL
@@ -97,29 +105,17 @@ input double          InpTrendRevLossPct = 20.0;    // Trend Reversal Loss % (of
 input bool            InpEmergencyExitEnabled = false; // Enable Emergency Exit
 input double          InpEmergencyMarginPct = 30.0; // Emergency Margin Level % (exit before stop out)
 
-input group "=== SMC TREND BOT (Magic: 999999) ==="
-input int             InpSmcMaxOrders = 5;          // Max Orders
-input int             InpSmcTakeProfit = 50;        // Take Profit (pips) - SAFE: 40-60
-input int             InpSmcStopLoss = 40;          // Stop Loss (pips) - SAFE: 30-50
-input int             InpSmcAddDistance = 15;       // Min Distance to Add (pips)
-input bool            InpSmcTrailing = true;        // Enable Trailing Stop
-input int             InpSmcTrailStart = 30;        // Trail Start (pips profit) - SAFE: 25-35
-input int             InpSmcTrailStep = 15;         // Trail Step (pips) - SAFE: 10-20
-
-input group "=== GRID BOT (Magic: 666666) ==="
-input int             InpGridLevels = 5;            // Grid Levels (each side)
-input int             InpGridSpacing = 15;          // Grid Spacing (pips)
-input int             InpGridTakeProfit = 10;       // TP Per Level (pips)
-input int             InpGridMaxPositions = 10;     // Max Positions
-input double          InpGridDailyLossLimit = 30.0; // Grid Daily Loss Limit ($)
-input bool            InpGridAutoReset = true;      // Auto Reset Grid on Large Move
-
-input group "=== MOMENTUM BOT (Magic: 555555) ==="
+input group "=== DIRECTION FILTER (EMA & RSI) ==="
+input ENUM_TIMEFRAMES InpHtfPeriod = PERIOD_H1;     // HTF Period for Trend Filter
+input bool            InpUseHtfFilter = true;        // Use Strict HTF Trend Filter
+input bool            InpUseMajorTrendGuard = true;  // Use major trend as L1 direction bias
+input ENUM_TIMEFRAMES InpMajorTrendPeriod = PERIOD_H4; // Major Trend Period
+input int             InpMajorTrendFastEma = 50;     // Major Trend Fast EMA
+input int             InpMajorTrendSlowEma = 200;    // Major Trend Slow EMA
+input int             InpMajorTrendSlopeBars = 12;   // Major Trend Slope Bars
 input int             InpMomEmaFast = 8;            // EMA Fast Period
 input int             InpMomEmaSlow = 21;           // EMA Slow Period
 input int             InpMomRsiPeriod = 14;         // RSI Period
-input double          InpMomAtrMultiplier = 1.5;    // ATR Multiplier for SL/TP
-input bool            InpMomTrailing = true;        // Enable Trailing Stop
 
 input group "=== SMC ANALYSIS SETTINGS ==="
 input int             InpSwingLookback = 10;        // Swing Point Lookback
@@ -137,13 +133,18 @@ input int             InpLondonEnd = 16;            // London Session End (Hour)
 input int             InpNYStart = 13;              // NY Session Start (Hour)
 input int             InpNYEnd = 21;                // NY Session End (Hour)
 
+input group "=== NEWS FILTER ==="
+input bool            InpUseNewsFilter = false;     // Use Manual News Filter
+input string          InpNewsTimes = "";            // Server times: 2026.04.30 12:30;2026.05.01 12:30
+input int             InpNewsBlockBeforeMin = 120;  // Block before news (minutes)
+input int             InpNewsBlockAfterMin = 240;   // Block after news (minutes)
+input bool            InpNewsBlockNewEntry = true;  // Block new baskets during news
+input bool            InpNewsBlockAddOrders = true; // Block martingale adds during news
+
 //+------------------------------------------------------------------+
 //| MAGIC NUMBERS                                                     |
 //+------------------------------------------------------------------+
 #define MAGIC_MARTINGALE  777777
-#define MAGIC_SMC_TREND   999999
-#define MAGIC_GRID        666666
-#define MAGIC_MOMENTUM    555555
 
 //+------------------------------------------------------------------+
 //| STRUCTURES                                                        |
@@ -220,14 +221,16 @@ CPositionInfo posInfo;
 // Daily tracking
 double g_dailyProfit = 0;
 double g_dailyStartBalance = 0;
+double g_monthlyProfit = 0;
+double g_monthlyClosedProfit = 0;
+double g_monthlyStartBalance = 0;
 double g_peakBalance = 0;
+double g_maxCurrentDrawdown = 0;
 datetime g_lastResetDate = 0;
+datetime g_lastMonthResetDate = 0;
 
 // Bot state
 ENUM_DIRECTION g_martDirection = DIR_NONE;
-ENUM_DIRECTION g_smcTrendDirection = DIR_NONE;
-double g_gridBasePrice = 0;
-ENUM_DIRECTION g_lastMomentumSignal = DIR_NONE;
 
 // Solution 1: Safety Features State
 bool g_breakevenMoved = false;
@@ -239,7 +242,6 @@ ENUM_ORDER_TYPE_FILLING g_fillingMode = ORDER_FILLING_IOC;
 
 // Loss tracking
 int g_consecutiveLosses = 0;
-double g_gridDailyLoss = 0;
 int g_totalTrades = 0;
 int g_winTrades = 0;
 int g_lossTrades = 0;
@@ -250,7 +252,9 @@ datetime g_lastErrorTime = 0;
 datetime g_lastTPDebugTime = 0;
 double g_calcTPPrice = 0;
 double g_calcTargetProfit = 0;
+double g_basketMaxFloatingLoss = 0;
 bool g_tpPending = false;
+string g_tradeStatus = "INIT";
 
 // SMC Data
 SwingPoint g_swings[];
@@ -311,15 +315,16 @@ int OnInit()
       Print("WARNING: Base lot ", InpBaseLot, " is below minimum ", minLot);
    }
 
-   // Initialize indicators
-   g_handleEmaFast = iMA(_Symbol, PERIOD_CURRENT, InpMomEmaFast, 0, MODE_EMA, PRICE_CLOSE);
-   g_handleEmaSlow = iMA(_Symbol, PERIOD_CURRENT, InpMomEmaSlow, 0, MODE_EMA, PRICE_CLOSE);
-   g_handleRsi = iRSI(_Symbol, PERIOD_CURRENT, InpMomRsiPeriod, PRICE_CLOSE);
-   g_handleAtr = iATR(_Symbol, PERIOD_CURRENT, 14);
-   g_handleAdx = iADX(_Symbol, PERIOD_CURRENT, 14);
+    // Initialize indicators
+    g_handleEmaFast = iMA(_Symbol, InpHtfPeriod, InpMomEmaFast, 0, MODE_EMA, PRICE_CLOSE);
+    g_handleEmaSlow = iMA(_Symbol, InpHtfPeriod, InpMomEmaSlow, 0, MODE_EMA, PRICE_CLOSE);
+    g_handleRsi = iRSI(_Symbol, InpHtfPeriod, InpMomRsiPeriod, PRICE_CLOSE);
+    g_handleAtr = iATR(_Symbol, PERIOD_CURRENT, 14);
+    g_handleAdx = iADX(_Symbol, PERIOD_CURRENT, 14);
 
    if(g_handleEmaFast == INVALID_HANDLE || g_handleEmaSlow == INVALID_HANDLE ||
-      g_handleRsi == INVALID_HANDLE || g_handleAtr == INVALID_HANDLE)
+      g_handleRsi == INVALID_HANDLE || g_handleAtr == INVALID_HANDLE ||
+      g_handleAdx == INVALID_HANDLE)
    {
       Print("ERROR: Failed to create indicators");
       return INIT_FAILED;
@@ -327,10 +332,11 @@ int OnInit()
 
    // Initialize daily tracking
    g_dailyStartBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+   g_monthlyStartBalance = g_dailyStartBalance;
    g_peakBalance = g_dailyStartBalance;
    g_lastResetDate = TimeCurrent();
+   g_lastMonthResetDate = TimeCurrent();
    g_consecutiveLosses = 0;
-   g_gridDailyLoss = 0;
 
    // Create panel (don't update yet - no data)
    if(InpShowPanel)
@@ -464,9 +470,12 @@ void OnTick()
 {
    // Check daily reset
    CheckDailyReset();
+   CheckMonthlyReset();
 
    // Check daily limits ONLY when we have no active positions (to prevent freezing active baskets)
    UpdateDailyProfit();
+   UpdateMonthlyProfit();
+   UpdateDrawdownTracking();
    if(PositionsTotal() == 0)
    {
       if(CheckDailyLimits())
@@ -494,15 +503,6 @@ void OnTick()
       case BOT_MARTINGALE:
          RunMartingaleBot();
          break;
-      case BOT_SMC_TREND:
-         RunSmcTrendBot();
-         break;
-      case BOT_GRID:
-         RunGridBot();
-         break;
-      case BOT_MOMENTUM:
-         RunMomentumBot();
-         break;
       default:
          break;
    }
@@ -520,14 +520,7 @@ void OnTick()
 //+------------------------------------------------------------------+
 int GetMagicNumber()
 {
-   switch(InpBotMode)
-   {
-      case BOT_MARTINGALE: return MAGIC_MARTINGALE;
-      case BOT_SMC_TREND:  return MAGIC_SMC_TREND;
-      case BOT_GRID:       return MAGIC_GRID;
-      case BOT_MOMENTUM:   return MAGIC_MOMENTUM;
-      default:             return MAGIC_MARTINGALE;
-   }
+   return MAGIC_MARTINGALE;
 }
 
 //+------------------------------------------------------------------+
@@ -545,26 +538,99 @@ void CheckDailyReset()
       g_dailyStartBalance = AccountInfoDouble(ACCOUNT_BALANCE);
       g_lastResetDate = TimeCurrent();
       g_martDirection = DIR_NONE;
-      g_smcTrendDirection = DIR_NONE;
       Print("Daily reset - New trading day");
    }
 }
 
-void UpdateDailyProfit()
+void CheckMonthlyReset()
 {
-   g_dailyProfit = AccountInfoDouble(ACCOUNT_BALANCE) - g_dailyStartBalance;
+   MqlDateTime now, lastReset;
+   TimeToStruct(TimeCurrent(), now);
+   TimeToStruct(g_lastMonthResetDate, lastReset);
 
-   // Add floating P&L
+   if(now.mon != lastReset.mon || now.year != lastReset.year)
+   {
+      g_monthlyProfit = 0;
+      g_monthlyStartBalance = AccountInfoDouble(ACCOUNT_BALANCE);
+      g_lastMonthResetDate = TimeCurrent();
+      Print("Monthly reset - New trading month");
+   }
+}
+
+double GetOpenFloatingPL()
+{
    double floatingPL = 0;
    for(int i = PositionsTotal() - 1; i >= 0; i--)
    {
       if(posInfo.SelectByIndex(i))
       {
          if(posInfo.Symbol() == _Symbol && posInfo.Magic() == GetMagicNumber())
-            floatingPL += posInfo.Profit();
+            floatingPL += posInfo.Profit() + posInfo.Swap() + posInfo.Commission();
       }
    }
-   g_dailyProfit += floatingPL;
+
+   return floatingPL;
+}
+
+void UpdateDailyProfit()
+{
+   g_dailyProfit = AccountInfoDouble(ACCOUNT_BALANCE) - g_dailyStartBalance;
+   g_dailyProfit += GetOpenFloatingPL();
+}
+
+void UpdateMonthlyProfit()
+{
+   MqlDateTime now;
+   TimeToStruct(TimeCurrent(), now);
+   now.day = 1;
+   now.hour = 0;
+   now.min = 0;
+   now.sec = 0;
+   datetime monthStart = StructToTime(now);
+
+   g_monthlyClosedProfit = 0;
+   if(HistorySelect(monthStart, TimeCurrent()))
+   {
+      int deals = HistoryDealsTotal();
+      for(int i = 0; i < deals; i++)
+      {
+         ulong ticket = HistoryDealGetTicket(i);
+         if(ticket == 0)
+            continue;
+
+         string dealSymbol = HistoryDealGetString(ticket, DEAL_SYMBOL);
+         long dealMagic = HistoryDealGetInteger(ticket, DEAL_MAGIC);
+         long dealType = HistoryDealGetInteger(ticket, DEAL_TYPE);
+
+         if(dealSymbol != _Symbol || dealMagic != GetMagicNumber())
+            continue;
+         if(dealType != DEAL_TYPE_BUY && dealType != DEAL_TYPE_SELL)
+            continue;
+
+         g_monthlyClosedProfit += HistoryDealGetDouble(ticket, DEAL_PROFIT);
+         g_monthlyClosedProfit += HistoryDealGetDouble(ticket, DEAL_SWAP);
+         g_monthlyClosedProfit += HistoryDealGetDouble(ticket, DEAL_COMMISSION);
+      }
+   }
+
+   g_monthlyProfit = g_monthlyClosedProfit + GetOpenFloatingPL();
+}
+
+double GetCurrentDrawdownPercent()
+{
+   double balance = AccountInfoDouble(ACCOUNT_BALANCE);
+   double equity = AccountInfoDouble(ACCOUNT_EQUITY);
+   if(balance <= 0 || equity >= balance)
+      return 0;
+
+   return ((balance - equity) / balance) * 100.0;
+}
+
+void UpdateDrawdownTracking()
+{
+   double currentDD = GetCurrentDrawdownPercent();
+   if(currentDD > g_maxCurrentDrawdown)
+      g_maxCurrentDrawdown = currentDD;
 }
 
 bool CheckDailyLimits()
@@ -613,6 +679,44 @@ double GetSessionMultiplier()
       return 1.3;  // Harder entry
 
    return 1.0;
+}
+
+bool IsInManualNewsWindow(string &reason)
+{
+   reason = "";
+   if(!InpUseNewsFilter || InpNewsTimes == "")
+      return false;
+
+   string items[];
+   int count = StringSplit(InpNewsTimes, ';', items);
+   datetime now = TimeCurrent();
+
+   for(int i = 0; i < count; i++)
+   {
+      string item = items[i];
+      StringTrimLeft(item);
+      StringTrimRight(item);
+      if(item == "")
+         continue;
+
+      datetime newsTime = StringToTime(item);
+      if(newsTime <= 0)
+         continue;
+
+      datetime blockFrom = newsTime - InpNewsBlockBeforeMin * 60;
+      datetime blockTo = newsTime + InpNewsBlockAfterMin * 60;
+      if(now >= blockFrom && now <= blockTo)
+      {
+         int minutesToNews = (int)MathRound((newsTime - now) / 60.0);
+         if(minutesToNews >= 0)
+            reason = "NEWS in " + IntegerToString(minutesToNews) + "m @ " + item;
+         else
+            reason = "NEWS +" + IntegerToString(MathAbs(minutesToNews)) + "m @ " + item;
+         return true;
+      }
+   }
+
+   return false;
 }
 
 //+------------------------------------------------------------------+
@@ -746,7 +850,7 @@ double GetTotalLot()
 //+------------------------------------------------------------------+
 //| UTILITY FUNCTIONS                                                 |
 //+------------------------------------------------------------------+
-double PipsToPrice(int pips)
+double PipsToPrice(double pips)
 {
    return pips * _Point * 10;
 }
@@ -985,6 +1089,11 @@ void LogError(string message)
    g_lastError = message;
    g_lastErrorTime = TimeCurrent();
    Print("ERROR: ", message);
+}
+
+void SetTradeStatus(string status)
+{
+   g_tradeStatus = status;
 }
 
 //+------------------------------------------------------------------+
@@ -1531,9 +1640,23 @@ void FindFairValueGaps()
          fvg.isBullish = true;
          fvg.time = time[i];  // Use time array instead of iTime()
 
-         int size = ArraySize(g_fvgs);
-         ArrayResize(g_fvgs, size + 1);
-         g_fvgs[size] = fvg;
+         // Check if mitigated (price went below fvg.low)
+         bool mitigated = false;
+         for(int k = i - 1; k >= 1; k--)
+         {
+            if(low[k] <= fvg.low)
+            {
+               mitigated = true;
+               break;
+            }
+         }
+
+         if(!mitigated)
+         {
+            int size = ArraySize(g_fvgs);
+            ArrayResize(g_fvgs, size + 1);
+            g_fvgs[size] = fvg;
+         }
       }
 
       // Bearish FVG: high[i] < low[i+2]
@@ -1546,9 +1669,23 @@ void FindFairValueGaps()
          fvg.isBullish = false;
          fvg.time = time[i];  // Use time array instead of iTime()
 
-         int size = ArraySize(g_fvgs);
-         ArrayResize(g_fvgs, size + 1);
-         g_fvgs[size] = fvg;
+         // Check if mitigated (price went above fvg.high)
+         bool mitigated = false;
+         for(int k = i - 1; k >= 1; k--)
+         {
+            if(high[k] >= fvg.high)
+            {
+               mitigated = true;
+               break;
+            }
+         }
+
+         if(!mitigated)
+         {
+            int size = ArraySize(g_fvgs);
+            ArrayResize(g_fvgs, size + 1);
+            g_fvgs[size] = fvg;
+         }
       }
    }
 }
@@ -1943,6 +2080,109 @@ bool PassDailyHighLowGuard(ENUM_DIRECTION direction, string &reason)
 }
 
 //+------------------------------------------------------------------+
+//| Directional FVG entry zone                                        |
+//+------------------------------------------------------------------+
+bool IsPriceInRecentDirectionalFvg(ENUM_DIRECTION direction, int bufferPips, string &reason)
+{
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   double price = (bid + ask) / 2;
+   double buffer = PipsToPrice(bufferPips);
+
+   for(int f = 0; f < ArraySize(g_fvgs); f++)
+   {
+      FairValueGap fvg = g_fvgs[f];
+      if(fvg.index > 20)
+         continue;
+
+      bool matchDir = (direction == DIR_BUY && fvg.isBullish) ||
+                      (direction == DIR_SELL && !fvg.isBullish);
+      if(!matchDir)
+         continue;
+
+      if(price >= (fvg.low - buffer) && price <= (fvg.high + buffer))
+      {
+         reason = (direction == DIR_BUY ? "Bull FVG" : "Bear FVG") + " " +
+                  DoubleToString(fvg.low, _Digits) + "-" + DoubleToString(fvg.high, _Digits);
+         return true;
+      }
+   }
+
+   reason = "Need recent FVG";
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| Smart recovery add gate for deeper Martingale levels              |
+//+------------------------------------------------------------------+
+bool CheckMartingaleSmartAddEntry(ENUM_DIRECTION direction, int nextLevel, string &reason, string &waiting)
+{
+   reason = "";
+   waiting = "";
+
+   string guardReason = "";
+   if(!PassDailyHighLowGuard(direction, guardReason))
+   {
+      waiting = guardReason;
+      return false;
+   }
+
+   string oppositeReason = "";
+   if(InpMartStopAddOnOppositeBos && HasOppositeRecentStructure(direction, oppositeReason))
+   {
+      waiting = oppositeReason;
+      return false;
+   }
+
+   string fvgReason = "";
+   string obReason = "";
+   string lqReason = "";
+   string structureReason = "";
+
+   bool inFvg = IsPriceInRecentDirectionalFvg(direction, InpMartObBufferPips, fvgReason);
+   bool inOb = IsPriceInDirectionalOrderBlock(direction, InpMartObBufferPips, obReason);
+   bool hasLq = HasRecentLiquiditySweep(direction, InpMartLqSweepLookback, lqReason);
+   bool hasStructure = HasSmcStructureSequence(direction, structureReason);
+
+   if(nextLevel <= 6)
+   {
+      if(inOb || inFvg || hasLq)
+      {
+         reason = "SmartL" + IntegerToString(nextLevel) + ":";
+         if(inOb) reason += obReason;
+         else if(inFvg) reason += fvgReason;
+         else reason += lqReason;
+         return true;
+      }
+
+      waiting = "L" + IntegerToString(nextLevel) + " needs OB/FVG/LQ, not distance only";
+      return false;
+   }
+
+   if(!hasStructure)
+   {
+      waiting = "L" + IntegerToString(nextLevel) + " needs " + structureReason;
+      return false;
+   }
+
+   if(!hasLq)
+   {
+      waiting = "L" + IntegerToString(nextLevel) + " needs " + lqReason;
+      return false;
+   }
+
+   if(!(inOb || inFvg))
+   {
+      waiting = "L" + IntegerToString(nextLevel) + " needs OB/FVG zone";
+      return false;
+   }
+
+   reason = "SmartL" + IntegerToString(nextLevel) + ":" + structureReason + "+" + lqReason + "+";
+   reason += inOb ? obReason : fvgReason;
+   return true;
+}
+
+//+------------------------------------------------------------------+
 //| Strict Martingale SMC/SMS gate                                    |
 //+------------------------------------------------------------------+
 SmcSignal CheckMartingaleSmcPrecisionEntry(ENUM_DIRECTION direction, bool isAdd)
@@ -2040,6 +2280,96 @@ ENUM_DIRECTION GetSmcTrendDirection()
 }
 
 //+------------------------------------------------------------------+
+//| Get Higher Timeframe (HTF) Trend Direction                       |
+//+------------------------------------------------------------------+
+ENUM_DIRECTION GetHTFTrendDirection()
+{
+   double emaFast[], emaSlow[];
+   ArraySetAsSeries(emaFast, true);
+   ArraySetAsSeries(emaSlow, true);
+
+   if(CopyBuffer(g_handleEmaFast, 0, 0, 2, emaFast) <= 0) return DIR_NONE;
+   if(CopyBuffer(g_handleEmaSlow, 0, 0, 2, emaSlow) <= 0) return DIR_NONE;
+
+   if(emaFast[0] > emaSlow[0])
+      return DIR_BUY;
+   else if(emaFast[0] < emaSlow[0])
+      return DIR_SELL;
+
+   return DIR_NONE;
+}
+
+//+------------------------------------------------------------------+
+//| Get major trend direction for L1 anti-trap guard                  |
+//+------------------------------------------------------------------+
+ENUM_DIRECTION GetMajorTrendDirection(string &reason)
+{
+   reason = "";
+
+   int fastPeriod = MathMax(2, InpMajorTrendFastEma);
+   int slowPeriod = MathMax(fastPeriod + 1, InpMajorTrendSlowEma);
+   int slopeBars = MathMax(3, InpMajorTrendSlopeBars);
+
+   double emaFast[], emaSlow[], close[];
+   ArraySetAsSeries(emaFast, true);
+   ArraySetAsSeries(emaSlow, true);
+   ArraySetAsSeries(close, true);
+
+   int fastHandle = iMA(_Symbol, InpMajorTrendPeriod, fastPeriod, 0, MODE_EMA, PRICE_CLOSE);
+   int slowHandle = iMA(_Symbol, InpMajorTrendPeriod, slowPeriod, 0, MODE_EMA, PRICE_CLOSE);
+
+   if(fastHandle == INVALID_HANDLE || slowHandle == INVALID_HANDLE)
+   {
+      if(fastHandle != INVALID_HANDLE) IndicatorRelease(fastHandle);
+      if(slowHandle != INVALID_HANDLE) IndicatorRelease(slowHandle);
+      reason = "major trend handles unavailable";
+      return DIR_NONE;
+   }
+
+   int barsNeeded = slopeBars + 2;
+   int copiedFast = CopyBuffer(fastHandle, 0, 0, barsNeeded, emaFast);
+   int copiedSlow = CopyBuffer(slowHandle, 0, 0, barsNeeded, emaSlow);
+   int copiedClose = CopyClose(_Symbol, InpMajorTrendPeriod, 0, barsNeeded, close);
+
+   IndicatorRelease(fastHandle);
+   IndicatorRelease(slowHandle);
+
+   int copied = MathMin(MathMin(copiedFast, copiedSlow), copiedClose);
+   if(copied <= slopeBars)
+   {
+      reason = "major trend needs more bars";
+      return DIR_NONE;
+   }
+
+   bool bullish = emaFast[1] > emaSlow[1] &&
+                  close[1] > emaFast[1] &&
+                  emaFast[1] > emaFast[slopeBars] &&
+                  close[1] > close[slopeBars];
+
+   bool bearish = emaFast[1] < emaSlow[1] &&
+                  close[1] < emaFast[1] &&
+                  emaFast[1] < emaFast[slopeBars] &&
+                  close[1] < close[slopeBars];
+
+   if(bullish)
+   {
+      reason = "major BUY " + EnumToString(InpMajorTrendPeriod) +
+               " EMA" + IntegerToString(fastPeriod) + ">EMA" + IntegerToString(slowPeriod);
+      return DIR_BUY;
+   }
+
+   if(bearish)
+   {
+      reason = "major SELL " + EnumToString(InpMajorTrendPeriod) +
+               " EMA" + IntegerToString(fastPeriod) + "<EMA" + IntegerToString(slowPeriod);
+      return DIR_SELL;
+   }
+
+   reason = "major trend mixed";
+   return DIR_NONE;
+}
+
+//+------------------------------------------------------------------+
 //| Analyze Daily Direction (for Martingale)                          |
 //+------------------------------------------------------------------+
 ENUM_DIRECTION AnalyzeDailyDirection()
@@ -2052,6 +2382,14 @@ ENUM_DIRECTION AnalyzeDailyDirection()
    if(CopyBuffer(g_handleEmaFast, 0, 0, 10, emaFast) <= 0) return DIR_BUY;
    if(CopyBuffer(g_handleEmaSlow, 0, 0, 10, emaSlow) <= 0) return DIR_BUY;
    if(CopyBuffer(g_handleRsi, 0, 0, 10, rsi) <= 0) return DIR_BUY;
+
+   string majorReason = "";
+   ENUM_DIRECTION majorDir = GetMajorTrendDirection(majorReason);
+   if(InpUseMajorTrendGuard && majorDir != DIR_NONE)
+   {
+      Print("[DIR-BIAS] Major trend selected ", EnumToString(majorDir), ": ", majorReason);
+      return majorDir;
+   }
 
    int buyScore = 0;
    int sellScore = 0;
@@ -2068,10 +2406,10 @@ ENUM_DIRECTION AnalyzeDailyDirection()
    else
       sellScore += 1;
 
-   // Recent price movement
+   // Recent price movement on HTF
    double close[];
    ArraySetAsSeries(close, true);
-   int copied = CopyClose(_Symbol, PERIOD_CURRENT, 0, 50, close);
+   int copied = CopyClose(_Symbol, InpHtfPeriod, 0, 50, close);
    if(copied >= 50)  // Make sure we have at least 50 bars
    {
       if(close[0] > close[49])
@@ -2080,12 +2418,17 @@ ENUM_DIRECTION AnalyzeDailyDirection()
          sellScore += 1;
    }
 
-   // SMC Trend
+   // SMC Trend (local chart)
    ENUM_DIRECTION smcDir = GetSmcTrendDirection();
    if(smcDir == DIR_BUY)
       buyScore += 2;
    else if(smcDir == DIR_SELL)
       sellScore += 2;
+
+   Print("[DIR-SCORE] BUY=", buyScore, " SELL=", sellScore,
+         " HTF_EMA=", (emaFast[0] > emaSlow[0] ? "BUY" : "SELL"),
+         " RSI=", DoubleToString(rsi[0], 1),
+         " SMC=", EnumToString(smcDir));
 
    return (buyScore > sellScore) ? DIR_BUY : DIR_SELL;
 }
@@ -2277,18 +2620,23 @@ bool CheckEmergencyExit(double totalProfit)
 //+------------------------------------------------------------------+
 void RunMartingaleBot()
 {
+   SetTradeStatus("ACTIVE");
    BotStats stats = GetBotStats(MAGIC_MARTINGALE);
 
    // Check additional protections ONLY when we have no positions (to prevent opening new baskets)
    if(stats.totalPositions == 0)
    {
       if(!CheckDrawdownProtection() || !CheckConsecutiveLosses())
+      {
+         SetTradeStatus("WAIT RISK LIMIT");
          return;
+      }
    }
 
    // TP RETRY: If TP was triggered but close failed, keep retrying
    if(g_tpPending && stats.totalPositions > 0)
    {
+      SetTradeStatus("TP RETRY");
       Print("[TP-RETRY] Re-attempting to close all positions... Profit: $", DoubleToString(stats.totalProfit, 2));
       if(CloseAllPositionsWithRetry(MAGIC_MARTINGALE))
       {
@@ -2297,6 +2645,7 @@ void RunMartingaleBot()
          g_breakevenMoved = false;
          g_partialClosed = false;
          g_highestProfitPips = 0;
+         g_basketMaxFloatingLoss = 0;
          Print("[TP-RETRY] SUCCESS! All positions closed!");
       }
       else
@@ -2312,6 +2661,7 @@ void RunMartingaleBot()
       g_breakevenMoved = false;
       g_partialClosed = false;
       g_highestProfitPips = 0;
+      g_basketMaxFloatingLoss = 0;
       Print("[TP-RETRY] Positions closed (externally). Reset.");
       return;
    }
@@ -2321,6 +2671,7 @@ void RunMartingaleBot()
    // 1. Emergency Exit - Check FIRST before everything
    if(stats.totalPositions > 0 && CheckEmergencyExit(stats.totalProfit))
    {
+      SetTradeStatus("EMERGENCY EXIT");
       Print("[EMERGENCY EXIT] Closing all positions!");
       if(CloseAllPositionsWithRetry(MAGIC_MARTINGALE))
       {
@@ -2329,6 +2680,7 @@ void RunMartingaleBot()
          g_breakevenMoved = false;
          g_partialClosed = false;
          g_highestProfitPips = 0;
+         g_basketMaxFloatingLoss = 0;
       }
       return;
    }
@@ -2338,6 +2690,7 @@ void RunMartingaleBot()
    {
       if(CheckTrendReversalExit(stats.direction, stats.totalProfit))
       {
+         SetTradeStatus("TREND REV EXIT");
          Print("[TREND REVERSAL EXIT] Chart moved wrong direction! Closing all!");
          if(CloseAllPositionsWithRetry(MAGIC_MARTINGALE))
          {
@@ -2346,6 +2699,7 @@ void RunMartingaleBot()
             g_breakevenMoved = false;
             g_partialClosed = false;
             g_highestProfitPips = 0;
+            g_basketMaxFloatingLoss = 0;
          }
          return;
       }
@@ -2358,18 +2712,48 @@ void RunMartingaleBot()
    // No positions - Open first order
    if(stats.totalPositions == 0)
    {
+      string newsReason = "";
+      if(InpNewsBlockNewEntry && IsInManualNewsWindow(newsReason))
+      {
+         SetTradeStatus("WAIT NEWS - no new order");
+         static datetime lastNewsEntryLog = 0;
+         if(TimeCurrent() - lastNewsEntryLog >= 60)
+         {
+            lastNewsEntryLog = TimeCurrent();
+            Print("[NEWS-FILTER] New basket blocked: ", newsReason);
+         }
+         return;
+      }
+
       // Determine direction
       if(InpMartAutoDirection || g_martDirection == DIR_NONE)
+      {
          g_martDirection = AnalyzeDailyDirection();
+
+         // Apply strict HTF trend filter
+         if(InpUseHtfFilter)
+         {
+            ENUM_DIRECTION htfDir = GetHTFTrendDirection();
+            if(htfDir != DIR_NONE && g_martDirection != htfDir)
+            {
+               Print("[HTF-FILTER] Blocked L1 entry in ", EnumToString(g_martDirection), " direction because HTF trend is ", EnumToString(htfDir));
+               SetTradeStatus("WAIT HTF TREND");
+               g_martDirection = DIR_NONE;
+               return;
+            }
+         }
+
+      }
 
       Print("[MARTINGALE] No positions. Direction: ", EnumToString(g_martDirection));
 
       // 3. Trend Filter - Block new entries against strong trend
       if(!CheckTrendFilter(g_martDirection))
-      {
-         Print("[TREND FILTER] ", EnumToString(g_martDirection), " blocked by trend filter");
-         return;
-      }
+         {
+            Print("[TREND FILTER] ", EnumToString(g_martDirection), " blocked by trend filter");
+            SetTradeStatus("WAIT TREND FILTER");
+            return;
+         }
 
       // Check strict SMC/SMS entry: CHoCH+BOS, liquidity sweep and OB zone.
       SmcSignal signal = CheckMartingaleSmcPrecisionEntry(g_martDirection, false);
@@ -2385,6 +2769,7 @@ void RunMartingaleBot()
          if(GetTotalLot() + lot > InpMaxTotalLot)
          {
             Print("Max lot limit reached");
+            SetTradeStatus("WAIT MAX LOT");
             return;
          }
 
@@ -2403,6 +2788,7 @@ void RunMartingaleBot()
       else
       {
          Print("[MARTINGALE] Waiting for SMC signal (score ", signal.score, "/", InpMinSmcScore, ")");
+         SetTradeStatus("WAIT SMC L1");
       }
       return;
    }
@@ -2422,24 +2808,82 @@ void RunMartingaleBot()
    if(profitPips > g_highestProfitPips)
       g_highestProfitPips = profitPips;
 
+   if(stats.totalProfit < 0)
+      g_basketMaxFloatingLoss = MathMax(g_basketMaxFloatingLoss, MathAbs(stats.totalProfit));
+
    // ================================================================
    // TP CHECK FIRST! (Before Breakeven / Partial Close)
    // ================================================================
 
-   // Calculate dynamic take profit based on lot size
+   // Calculate basket TP. Adaptive mode uses AvgPrice + pips/ATR so bigger baskets
+   // do not close for the same fixed $ target as a single small entry.
    double targetProfit = InpMartTakeProfitUSD;
-   if(InpMartTPScaling)
-      targetProfit = InpMartTakeProfitUSD * (stats.totalLot / 0.01);
-   targetProfit = MathMax(targetProfit, InpMartMinProfitUSD);
-   g_calcTargetProfit = targetProfit;
+   double tpDist = 0;
 
-   // Calculate TP price level for visual display
+   if(InpMartUseAdaptiveBasketTP)
    {
+      double targetPips = InpMartTPBasePips;
+
+      if(g_handleAtr != INVALID_HANDLE)
+      {
+         double atrValues[];
+         ArraySetAsSeries(atrValues, true);
+         if(CopyBuffer(g_handleAtr, 0, 0, 1, atrValues) > 0)
+         {
+            double atrPips = PriceToPips(atrValues[0]);
+            if(atrPips > 0)
+               targetPips = MathMax(targetPips, atrPips * InpMartTPAtrMultiplier);
+         }
+      }
+
+      if(stats.maxLevelReached >= 10)
+         targetPips *= 0.45;
+      else if(stats.maxLevelReached >= 7)
+         targetPips *= 0.60;
+      else if(stats.maxLevelReached >= 4)
+         targetPips *= 0.80;
+
+      targetPips = MathMax(InpMartTPMinPips, MathMin(InpMartTPMaxPips, targetPips));
+      tpDist = PipsToPrice(targetPips);
+
       double tickVal = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
       double tickSz = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
-      double tpDist = 0;
+      double priceBasedProfit = 0;
+      if(stats.totalLot > 0 && tickVal > 0 && tickSz > 0)
+         priceBasedProfit = (tpDist / tickSz) * tickVal * stats.totalLot;
+
+      double lotBasedProfit = InpMartProfitPer001Lot * (stats.totalLot / 0.01);
+      targetProfit = MathMax(MathMax(priceBasedProfit, lotBasedProfit), InpMartMinProfitUSD);
+   }
+   else
+   {
+      if(InpMartTPScaling)
+         targetProfit = InpMartTakeProfitUSD * (stats.totalLot / 0.01);
+      targetProfit = MathMax(targetProfit, InpMartMinProfitUSD);
+
+      double tickVal = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+      double tickSz = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
       if(stats.totalLot > 0 && tickVal > 0)
          tpDist = (targetProfit / stats.totalLot) * (tickSz / tickVal);
+   }
+
+   if(InpMartUseRecoveryProfitTP && stats.totalPositions >= InpMartRecoveryTPMinLevel && g_basketMaxFloatingLoss > 0)
+   {
+      double recoveryTarget = g_basketMaxFloatingLoss * (InpMartRecoveryTPPercent / 100.0);
+      if(InpMartRecoveryTPMaxUSD > 0)
+         recoveryTarget = MathMin(recoveryTarget, InpMartRecoveryTPMaxUSD);
+      targetProfit = MathMax(targetProfit, recoveryTarget);
+
+      double tickVal = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+      double tickSz = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+      if(stats.totalLot > 0 && tickVal > 0)
+         tpDist = (targetProfit / stats.totalLot) * (tickSz / tickVal);
+   }
+
+   g_calcTargetProfit = targetProfit;
+
+   // Calculate TP price level for visual display and price-based backup close
+   {
       if(direction == DIR_BUY)
          g_calcTPPrice = avgPrice + tpDist;
       else
@@ -2456,7 +2900,8 @@ void RunMartingaleBot()
             " | TP Price: ", DoubleToString(g_calcTPPrice, _Digits),
             " | Lots: ", DoubleToString(stats.totalLot, 2),
             " | Pos: ", stats.totalPositions,
-            " | ProfitPips: ", DoubleToString(profitPips, 1));
+            " | ProfitPips: ", DoubleToString(profitPips, 1),
+            " | BasketMaxDD: $", DoubleToString(g_basketMaxFloatingLoss, 2));
    }
 
    // Check take profit
@@ -2533,6 +2978,7 @@ void RunMartingaleBot()
          g_breakevenMoved = false;
          g_partialClosed = false;
          g_highestProfitPips = 0;
+         g_basketMaxFloatingLoss = 0;
       }
       else
       {
@@ -2642,6 +3088,7 @@ void RunMartingaleBot()
    // Debug log when maximum level limit reached
    if(currentLevel >= InpMartMaxLevel)
    {
+      SetTradeStatus("MAX LEVEL - wait TP");
       static datetime lastMaxLevelLog = 0;
       if(TimeCurrent() - lastMaxLevelLog >= 60)
       {
@@ -2653,9 +3100,12 @@ void RunMartingaleBot()
 
    if(currentLevel < InpMartMaxLevel)
    {
-      // Cooldown: prevent rapid-fire add (L7->L8->L9 in same second)
-      if(g_lastMartAddTime > 0 && (TimeCurrent() - g_lastMartAddTime) < 30)
+      // Cooldown: prevent rapid-fire add (L7->L8->L9 in same minute/seconds)
+      if(g_lastMartAddTime > 0 && (TimeCurrent() - g_lastMartAddTime) < InpMartCooldownMinutes * 60)
+      {
+         SetTradeStatus("WAIT COOLDOWN");
          return;
+      }
 
       double lastPrice = GetLastEntryPrice(MAGIC_MARTINGALE);
 
@@ -2697,6 +3147,7 @@ void RunMartingaleBot()
       // Minimum distance check
       if(distancePips < activeMinDistance)
       {
+         SetTradeStatus("WAIT DISTANCE L" + IntegerToString(currentLevel + 1));
          static datetime lastDistLog = 0;
          if(TimeCurrent() - lastDistLog >= 60)
          {
@@ -2715,6 +3166,7 @@ void RunMartingaleBot()
 
       if(!priceMovedAgainst)
       {
+         SetTradeStatus("WAIT PROFIT/AGAINST");
          static datetime lastAgainstLog = 0;
          if(TimeCurrent() - lastAgainstLog >= 60)
          {
@@ -2727,6 +3179,19 @@ void RunMartingaleBot()
       // Session multiplier
       double sessionMult = GetSessionMultiplier();
 
+      string newsReason = "";
+      if(InpNewsBlockAddOrders && IsInManualNewsWindow(newsReason))
+      {
+         SetTradeStatus("WAIT NEWS - no add order");
+         static datetime lastNewsAddLog = 0;
+         if(TimeCurrent() - lastNewsAddLog >= 60)
+         {
+            lastNewsAddLog = TimeCurrent();
+            Print("[NEWS-FILTER] Martingale add L", currentLevel + 1, " blocked: ", newsReason);
+         }
+         return;
+      }
+
       // Check SMC/SMS signal. Distance is only a safety throttle; it is not the entry trigger.
       SmcSignal signal;
       signal.valid = false;
@@ -2735,38 +3200,27 @@ void RunMartingaleBot()
       signal.waiting = "";
       bool shouldEnter = false;
       string reason = "";
+      int nextLevel = currentLevel + 1;
 
       if(!InpMartStrictSmcEntry)
       {
-         // L1-L3: add with distance only (small lots, low risk)
-         if(currentLevel < 4)
+         // L2-L3: distance is enough. L4+ must wait for a real recovery setup.
+         if(nextLevel <= 3)
          {
             shouldEnter = true;
             reason = IntegerToString((int)distancePips) + "p distance";
          }
          else
          {
-            // L4+: require FVG confirmation for better entry (bigger lots)
-            bool inFvg = false;
-            double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-            double fvgBuffer = 10.0 * _Point * MathPow(10, _Digits - ((_Digits == 3 || _Digits == 5) ? 1 : 0));
-            for(int f = 0; f < ArraySize(g_fvgs); f++)
-            {
-               FairValueGap fvg = g_fvgs[f];
-               if(fvg.index > 20) continue;  // only recent FVGs
-               bool matchDir = (direction == DIR_BUY && fvg.isBullish) ||
-                               (direction == DIR_SELL && !fvg.isBullish);
-               if(matchDir && bid >= (fvg.low - fvgBuffer) && bid <= (fvg.high + fvgBuffer))
-               {
-                  inFvg = true;
-                  break;
-               }
-            }
-            if(inFvg)
+            string smartReason = "";
+            string smartWaiting = "";
+            if(CheckMartingaleSmartAddEntry(direction, nextLevel, smartReason, smartWaiting))
             {
                shouldEnter = true;
-               reason = IntegerToString((int)distancePips) + "p+FVG L" + IntegerToString(currentLevel + 1);
+               reason = IntegerToString((int)distancePips) + "p+" + smartReason;
             }
+            else
+               signal.waiting = smartWaiting;
          }
       }
       else
@@ -2788,6 +3242,8 @@ void RunMartingaleBot()
 
       if(!shouldEnter)
       {
+         string waitText = signal.waiting == "" ? "WAIT SMART ENTRY" : "WAIT " + signal.waiting;
+         SetTradeStatus(StringSubstr(waitText, 0, 32));
          static datetime lastNoEnterLog = 0;
          if(TimeCurrent() - lastNoEnterLog >= 60)
          {
@@ -2800,13 +3256,13 @@ void RunMartingaleBot()
 
       if(shouldEnter)
       {
-         int nextLevel = currentLevel + 1;
          double nextLot = NormalizeLot(InpBaseLot * MathPow(InpMartMultiplier, nextLevel - 1));
 
          // Check max lot
          if(GetTotalLot() + nextLot > InpMaxTotalLot)
          {
             Print("Max lot reached at level ", nextLevel, ", lot needed: ", DoubleToString(nextLot, 2));
+            SetTradeStatus("WAIT MAX LOT");
             return;
          }
 
@@ -2820,6 +3276,7 @@ void RunMartingaleBot()
          if(OpenOrderWithRetry(direction, nextLot, 0, 0, comment))
          {
             g_lastMartAddTime = TimeCurrent();
+            SetTradeStatus("OPENED L" + IntegerToString(nextLevel));
             Print("Martingale L", nextLevel, " added: ", reason);
          }
       }
@@ -2898,511 +3355,6 @@ bool CloseAllPositionsWithRetry(int magic)
 }
 
 //+------------------------------------------------------------------+
-//| SMC TREND FOLLOWER BOT                                            |
-//+------------------------------------------------------------------+
-void RunSmcTrendBot()
-{
-   BotStats stats = GetBotStats(MAGIC_SMC_TREND);
-
-   // Check protections ONLY when we have no positions
-   if(stats.totalPositions == 0)
-   {
-      if(!CheckDrawdownProtection() || !CheckConsecutiveLosses())
-         return;
-   }
-
-   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-   double price = (bid + ask) / 2;
-
-   // Get trend direction from BOS/CHoCH
-   ENUM_DIRECTION trendDir = GetSmcTrendDirection();
-
-   // No positions - Open first order
-   if(stats.totalPositions == 0)
-   {
-      if(trendDir == DIR_NONE)
-         return;
-
-      // Check SMC entry
-      SmcSignal signal = CheckSmcEntry(trendDir);
-
-      if(signal.valid)
-      {
-         double lot = NormalizeLot(InpBaseLot);
-         double sl = 0, tp = 0;
-
-         if(trendDir == DIR_BUY)
-         {
-            sl = ask - PipsToPrice(InpSmcStopLoss);
-            tp = ask + PipsToPrice(InpSmcTakeProfit);
-         }
-         else
-         {
-            sl = bid + PipsToPrice(InpSmcStopLoss);
-            tp = bid - PipsToPrice(InpSmcTakeProfit);
-         }
-
-         // Check max lot
-         if(GetTotalLot() + lot > InpMaxTotalLot)
-         {
-            Print("SMC Trend: Max lot limit reached");
-            return;
-         }
-
-         string comment = "SMC " + signal.reason;
-         if(OpenOrderWithRetry(trendDir, lot, sl, tp, comment))
-         {
-            g_smcTrendDirection = trendDir;
-            Print("SMC Trend opened: ", EnumToString(trendDir), " ", signal.reason);
-         }
-      }
-      return;
-   }
-
-   // Has positions
-   ENUM_DIRECTION direction = stats.direction;
-
-   // Dynamic take profit based on lot size
-   double targetProfit = 1.0 + (stats.totalLot * 50);  // $1 base + $50 per lot
-
-   // Check total take profit
-   if(stats.totalProfit >= targetProfit)
-   {
-      if(CloseAllPositionsWithRetry(MAGIC_SMC_TREND))
-      {
-         UpdateTradeStats(stats.totalProfit);
-         Print("SMC Trend TP! Profit: $", DoubleToString(stats.totalProfit, 2));
-         g_smcTrendDirection = DIR_NONE;
-      }
-      return;
-   }
-
-   // Trailing stop
-   if(InpSmcTrailing)
-      UpdateTrailingStop(MAGIC_SMC_TREND, InpSmcTrailStart, InpSmcTrailStep);
-
-   // Add more orders (trend following)
-   if(stats.totalPositions < InpSmcMaxOrders)
-   {
-      double lastPrice = GetLastEntryPrice(MAGIC_SMC_TREND);
-
-      // Price must move favorably (in profit direction)
-      double distancePips = 0;
-      if(direction == DIR_BUY)
-         distancePips = PriceToPips(price - lastPrice);  // Positive = price up = good for BUY
-      else
-         distancePips = PriceToPips(lastPrice - price);  // Positive = price down = good for SELL
-
-      // Must move in favorable direction
-      if(distancePips >= InpSmcAddDistance)
-      {
-         // Simple trend confirmation for add
-         double emaFast[], emaSlow[];
-         ArraySetAsSeries(emaFast, true);
-         ArraySetAsSeries(emaSlow, true);
-
-         if(CopyBuffer(g_handleEmaFast, 0, 0, 3, emaFast) > 0 &&
-            CopyBuffer(g_handleEmaSlow, 0, 0, 3, emaSlow) > 0)
-         {
-            bool trendOk = false;
-            if(direction == DIR_BUY && price > emaFast[0] && emaFast[0] > emaSlow[0])
-               trendOk = true;
-            else if(direction == DIR_SELL && price < emaFast[0] && emaFast[0] < emaSlow[0])
-               trendOk = true;
-
-            if(trendOk)
-            {
-               double lot = NormalizeLot(InpBaseLot);
-               double sl = 0, tp = 0;
-
-               if(direction == DIR_BUY)
-               {
-                  sl = ask - PipsToPrice(InpSmcStopLoss);
-                  tp = ask + PipsToPrice(InpSmcTakeProfit);
-               }
-               else
-               {
-                  sl = bid + PipsToPrice(InpSmcStopLoss);
-                  tp = bid - PipsToPrice(InpSmcTakeProfit);
-               }
-
-               // Check max lot
-               if(GetTotalLot() + lot > InpMaxTotalLot)
-               {
-                  Print("SMC Trend: Max lot limit reached for add");
-                  return;
-               }
-
-               string comment = "SMC Add #" + IntegerToString(stats.totalPositions + 1);
-               if(OpenOrderWithRetry(direction, lot, sl, tp, comment))
-                  Print("SMC Trend added #", stats.totalPositions + 1);
-            }
-         }
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
-//| GRID BOT                                                          |
-//+------------------------------------------------------------------+
-void RunGridBot()
-{
-   BotStats stats = GetBotStats(MAGIC_GRID);
-
-   // Check protections ONLY when we have no positions
-   if(stats.totalPositions == 0)
-   {
-      if(!CheckDrawdownProtection() || !CheckConsecutiveLosses())
-         return;
-
-      // Check Grid daily loss limit
-      if(g_gridDailyLoss >= InpGridDailyLossLimit)
-      {
-         Comment("GRID DAILY LOSS LIMIT REACHED: $", DoubleToString(g_gridDailyLoss, 2));
-         return;
-      }
-   }
-
-   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-   double price = (bid + ask) / 2;
-   double gridSize = PipsToPrice(InpGridSpacing);
-
-   // Initialize grid base price
-   if(g_gridBasePrice == 0 && stats.totalPositions == 0)
-      g_gridBasePrice = price;
-
-   // Check if price moved too far - need to reset grid
-   if(stats.totalPositions > 0 && MathAbs(price - g_gridBasePrice) > gridSize * 5)
-   {
-      if(InpGridAutoReset)
-      {
-         Print("Grid reset triggered - price moved ", DoubleToString(PriceToPips(MathAbs(price - g_gridBasePrice)), 0), " pips from base");
-
-         // Calculate total P&L before closing
-         double gridPL = stats.totalProfit;
-
-         // Close ALL grid positions first (FIX: orphan positions bug)
-         if(CloseAllPositionsWithRetry(MAGIC_GRID))
-         {
-            // Track losses
-            if(gridPL < 0)
-               g_gridDailyLoss += MathAbs(gridPL);
-
-            UpdateTradeStats(gridPL);
-
-            // Reset grid base
-            g_gridBasePrice = 0;
-            Print("Grid reset complete. P&L: $", DoubleToString(gridPL, 2), ", Daily Grid Loss: $", DoubleToString(g_gridDailyLoss, 2));
-         }
-         return;
-      }
-   }
-
-   // Set new base price if no positions
-   if(stats.totalPositions == 0 && g_gridBasePrice == 0)
-      g_gridBasePrice = price;
-
-   // Close profitable positions
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
-   {
-      if(posInfo.SelectByIndex(i))
-      {
-         if(posInfo.Symbol() == _Symbol && posInfo.Magic() == MAGIC_GRID)
-         {
-            double profit = posInfo.Profit();
-            double minProfit = 0.30 + (posInfo.Volume() * 10); // Dynamic TP based on lot
-
-            if(profit >= minProfit)
-            {
-               if(ClosePositionWithRetry(posInfo.Ticket()))
-               {
-                  UpdateTradeStats(profit);
-                  Print("Grid closed with profit: $", DoubleToString(profit, 2));
-               }
-            }
-         }
-      }
-   }
-
-   // Re-check stats after closing
-   stats = GetBotStats(MAGIC_GRID);
-
-   // Check max positions
-   if(stats.totalPositions >= InpGridMaxPositions)
-      return;
-
-   // Check max lot
-   double lotToOpen = NormalizeLot(InpBaseLot);
-   if(GetTotalLot() + lotToOpen > InpMaxTotalLot)
-   {
-      Print("Grid: Max lot limit reached");
-      return;
-   }
-
-   // Create grid levels
-   for(int level = 1; level <= InpGridLevels; level++)
-   {
-      double buyLevel = g_gridBasePrice - gridSize * level;
-      double sellLevel = g_gridBasePrice + gridSize * level;
-
-      // Check if we should open BUY at this level
-      if(price <= buyLevel + gridSize * 0.2)
-      {
-         // Check if no position at this level (by comment)
-         if(!HasGridPositionAtLevel("Grid BUY L" + IntegerToString(level)))
-         {
-            double sl = buyLevel - gridSize * 3;
-            double tp = buyLevel + PipsToPrice(InpGridTakeProfit);
-
-            string comment = "Grid BUY L" + IntegerToString(level);
-            if(OpenOrderWithRetry(DIR_BUY, lotToOpen, sl, tp, comment))
-               Print("Grid BUY opened at level ", level);
-         }
-      }
-
-      // Check if we should open SELL at this level
-      if(price >= sellLevel - gridSize * 0.2)
-      {
-         // Check if no position at this level (by comment)
-         if(!HasGridPositionAtLevel("Grid SELL L" + IntegerToString(level)))
-         {
-            double sl = sellLevel + gridSize * 3;
-            double tp = sellLevel - PipsToPrice(InpGridTakeProfit);
-
-            string comment = "Grid SELL L" + IntegerToString(level);
-            if(OpenOrderWithRetry(DIR_SELL, lotToOpen, sl, tp, comment))
-               Print("Grid SELL opened at level ", level);
-         }
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Check if Grid has position at specific level                      |
-//+------------------------------------------------------------------+
-bool HasGridPositionAtLevel(string levelComment)
-{
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
-   {
-      if(posInfo.SelectByIndex(i))
-      {
-         if(posInfo.Symbol() == _Symbol && posInfo.Magic() == MAGIC_GRID)
-         {
-            if(StringFind(posInfo.Comment(), levelComment) >= 0)
-               return true;
-         }
-      }
-   }
-   return false;
-}
-
-//+------------------------------------------------------------------+
-//| MOMENTUM BOT                                                      |
-//+------------------------------------------------------------------+
-void RunMomentumBot()
-{
-   BotStats stats = GetBotStats(MAGIC_MOMENTUM);
-
-   // Check protections ONLY when we have no positions
-   if(stats.totalPositions == 0)
-   {
-      if(!CheckDrawdownProtection() || !CheckConsecutiveLosses())
-         return;
-   }
-
-   // Only one position at a time for momentum
-   if(stats.totalPositions > 0)
-   {
-      if(InpMomTrailing)
-         UpdateTrailingStop(MAGIC_MOMENTUM, 10, 5);
-      return;
-   }
-
-   // Get indicators
-   double emaFast[], emaSlow[], rsi[], atr[];
-   ArraySetAsSeries(emaFast, true);
-   ArraySetAsSeries(emaSlow, true);
-   ArraySetAsSeries(rsi, true);
-   ArraySetAsSeries(atr, true);
-
-   if(CopyBuffer(g_handleEmaFast, 0, 0, 5, emaFast) <= 0) return;
-   if(CopyBuffer(g_handleEmaSlow, 0, 0, 5, emaSlow) <= 0) return;
-   if(CopyBuffer(g_handleRsi, 0, 0, 5, rsi) <= 0) return;
-   if(CopyBuffer(g_handleAtr, 0, 0, 5, atr) <= 0) return;
-
-   double high[], low[], close[];
-   ArraySetAsSeries(high, true);
-   ArraySetAsSeries(low, true);
-   ArraySetAsSeries(close, true);
-
-   if(CopyHigh(_Symbol, PERIOD_CURRENT, 0, 25, high) <= 0) return;
-   if(CopyLow(_Symbol, PERIOD_CURRENT, 0, 25, low) <= 0) return;
-   if(CopyClose(_Symbol, PERIOD_CURRENT, 0, 25, close) <= 0) return;
-
-   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-   double price = close[0];
-
-   // EMA crossover
-   bool bullishCross = emaFast[1] <= emaSlow[1] && emaFast[0] > emaSlow[0];
-   bool bearishCross = emaFast[1] >= emaSlow[1] && emaFast[0] < emaSlow[0];
-
-   // Breakout detection
-   double recentHigh = high[ArrayMaximum(high, 1, 20)];
-   double recentLow = low[ArrayMinimum(low, 1, 20)];
-   bool breakoutUp = price > recentHigh;
-   bool breakoutDown = price < recentLow;
-
-   // Trend direction
-   bool emaBullish = emaFast[0] > emaSlow[0];
-   bool emaBearish = emaFast[0] < emaSlow[0];
-
-   // RSI momentum
-   bool rsiBullish = rsi[0] > 40 && rsi[0] < 70;
-   bool rsiBearish = rsi[0] > 30 && rsi[0] < 60;
-
-   // Calculate score
-   int buyScore = 0;
-   int sellScore = 0;
-   string buyReason = "";
-   string sellReason = "";
-
-   if(bullishCross) { buyScore += 3; buyReason += "Cross+"; }
-   if(breakoutUp && emaBullish) { buyScore += 2; buyReason += "Break+"; }
-   if(emaBullish && rsiBullish) { buyScore += 2; buyReason += "Trend+"; }
-
-   if(bearishCross) { sellScore += 3; sellReason += "Cross+"; }
-   if(breakoutDown && emaBearish) { sellScore += 2; sellReason += "Break+"; }
-   if(emaBearish && rsiBearish) { sellScore += 2; sellReason += "Trend+"; }
-
-   // Entry decision
-   ENUM_DIRECTION signal = DIR_NONE;
-   string reason = "";
-
-   if(buyScore >= 3 && buyScore > sellScore)
-   {
-      signal = DIR_BUY;
-      reason = buyReason;
-   }
-   else if(sellScore >= 3 && sellScore > buyScore)
-   {
-      signal = DIR_SELL;
-      reason = sellReason;
-   }
-
-   // Avoid duplicate signals
-   if(signal == g_lastMomentumSignal)
-      signal = DIR_NONE;
-
-   if(signal != DIR_NONE)
-   {
-      double atrVal = atr[0];
-      double slDistance = atrVal * InpMomAtrMultiplier;
-      double tpDistance = atrVal * InpMomAtrMultiplier * 2;
-
-      double lot = NormalizeLot(CalculateLotSize(PriceToPips(slDistance)));
-
-      // Check max lot
-      if(GetTotalLot() + lot > InpMaxTotalLot)
-      {
-         Print("Momentum: Max lot limit reached");
-         return;
-      }
-
-      double sl = 0, tp = 0;
-      if(signal == DIR_BUY)
-      {
-         sl = ask - slDistance;
-         tp = ask + tpDistance;
-      }
-      else
-      {
-         sl = bid + slDistance;
-         tp = bid - tpDistance;
-      }
-
-      // Remove trailing + from reason
-      if(StringLen(reason) > 0 && StringSubstr(reason, StringLen(reason)-1, 1) == "+")
-         reason = StringSubstr(reason, 0, StringLen(reason)-1);
-
-      string comment = "Mom " + reason;
-      if(OpenOrderWithRetry(signal, lot, sl, tp, comment))
-      {
-         g_lastMomentumSignal = signal;
-         Print("Momentum opened: ", EnumToString(signal), " ", reason);
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
-//| Update Trailing Stop                                              |
-//+------------------------------------------------------------------+
-void UpdateTrailingStop(int magic, int trailStartPips, int trailStepPips)
-{
-   double trailStart = PipsToPrice(trailStartPips);
-   double trailStep = PipsToPrice(trailStepPips);
-   double minDistance = PipsToPrice(15);  // Minimum 15 pips from current price
-
-   for(int i = PositionsTotal() - 1; i >= 0; i--)
-   {
-      if(posInfo.SelectByIndex(i))
-      {
-         if(posInfo.Symbol() != _Symbol || posInfo.Magic() != magic)
-            continue;
-
-         double openPrice = posInfo.PriceOpen();
-         double currentSL = posInfo.StopLoss();
-         double currentTP = posInfo.TakeProfit();
-
-         if(posInfo.PositionType() == POSITION_TYPE_BUY)
-         {
-            double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-            double profit = bid - openPrice;
-
-            if(profit >= trailStart)
-            {
-               double newSL = bid - trailStep;
-
-               // Safety: Ensure SL is at least minDistance from current price
-               double minAllowedSL = bid - minDistance;
-               if(newSL > minAllowedSL)
-                  newSL = minAllowedSL;
-
-               // Only update if newSL is better (higher) and above breakeven
-               if((newSL > currentSL || currentSL == 0) && newSL > openPrice)
-               {
-                  trade.PositionModify(posInfo.Ticket(), newSL, currentTP);
-               }
-            }
-         }
-         else // SELL
-         {
-            double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-            double profit = openPrice - ask;
-
-            if(profit >= trailStart)
-            {
-               double newSL = ask + trailStep;
-
-               // Safety: Ensure SL is at least minDistance from current price
-               double maxAllowedSL = ask + minDistance;
-               if(newSL < maxAllowedSL)
-                  newSL = maxAllowedSL;
-
-               // Only update if newSL is better (lower) and below breakeven
-               if((newSL < currentSL || currentSL == 0) && newSL < openPrice)
-               {
-                  trade.PositionModify(posInfo.Ticket(), newSL, currentTP);
-               }
-            }
-         }
-      }
-   }
-}
-
-//+------------------------------------------------------------------+
 //| Draw Horizontal Line With Label                                   |
 //+------------------------------------------------------------------+
 void DrawHLineWithLabel(string lineName, string labelName, double priceLevel,
@@ -3478,9 +3430,9 @@ void DrawTPLines()
                          "TP: " + DoubleToString(g_calcTPPrice, _Digits) +
                          " ($" + DoubleToString(g_calcTargetProfit, 2) + ")");
    }
-   else if(InpBotMode != BOT_MARTINGALE)
+   else
    {
-      // Other modes: get TP from position
+      // Other modes (manual): get TP from position
       double posTP = 0;
       for(int i = PositionsTotal() - 1; i >= 0; i--)
       {
@@ -3532,11 +3484,27 @@ void DrawTPLines()
 //+------------------------------------------------------------------+
 //| Create Info Panel                                                 |
 //+------------------------------------------------------------------+
+void DeletePanel()
+{
+   ObjectDelete(0, g_panelName + "_bg");
+   ObjectDelete(0, g_panelName + "_header");
+   ObjectDelete(0, g_panelName + "_title");
+   ObjectDelete(0, g_panelName + "_subtitle");
+
+   for(int i = 0; i < 25; i++)
+   {
+      ObjectDelete(0, g_panelName + "_lbl" + IntegerToString(i));
+      ObjectDelete(0, g_panelName + "_val" + IntegerToString(i));
+   }
+}
+
 void CreatePanel()
 {
+   DeletePanel();
+
    int x = 15, y = 20;
    int width = 320;
-   int height = 370;
+   int height = 470;
    color bgColor = C'25,25,40';        // Dark blue-gray
    color borderColor = C'255,215,0';   // Gold
    color textColor = clrWhiteSmoke;
@@ -3585,7 +3553,7 @@ void CreatePanel()
    ObjectSetInteger(0, g_panelName + "_subtitle", OBJPROP_CORNER, CORNER_LEFT_UPPER);
 
    // Labels
-   string labels[] = {"Mode:", "Positions:", "Total Lot:", "Daily P&L:", "Direction:", "SMC Signal:", "Session:", "Win Rate:", "Drawdown:", "Last Error:", "TP Target:", "TP Price:"};
+   string labels[] = {"Mode:", "Status:", "Positions:", "Total Lot:", "Daily P&L:", "Month Closed:", "Month Total:", "Direction:", "SMC Signal:", "Session:", "News:", "Win Rate:", "DD Cur/Max:", "Last Error:", "TP Target:", "TP Price:"};
    int startY = y + 55;  // After header
 
    for(int i = 0; i < ArraySize(labels); i++)
@@ -3619,22 +3587,22 @@ void CreatePanel()
 void UpdatePanel()
 {
    // Check if panel exists
-   if(ObjectFind(0, g_panelName + "_bg") < 0)
-      return;
-
+   if(ObjectFind(0, g_panelName + "_bg") < 0) return;
    BotStats stats = GetBotStats(GetMagicNumber());
-
-   // Mode
    string modeText = "";
    switch(InpBotMode)
    {
       case BOT_MANUAL:     modeText = "Manual"; break;
       case BOT_MARTINGALE: modeText = "Martingale"; break;
-      case BOT_SMC_TREND:  modeText = "SMC Trend"; break;
-      case BOT_GRID:       modeText = "Grid"; break;
-      case BOT_MOMENTUM:   modeText = "Momentum"; break;
    }
    ObjectSetString(0, g_panelName + "_val0", OBJPROP_TEXT, modeText);
+   color statusColor = clrLime;
+   if(StringFind(g_tradeStatus, "WAIT") >= 0)
+      statusColor = clrOrange;
+   else if(StringFind(g_tradeStatus, "EXIT") >= 0 || StringFind(g_tradeStatus, "RETRY") >= 0)
+      statusColor = clrYellow;
+   ObjectSetString(0, g_panelName + "_val1", OBJPROP_TEXT, StringSubstr(g_tradeStatus, 0, 30));
+   ObjectSetInteger(0, g_panelName + "_val1", OBJPROP_COLOR, statusColor);
 
     // Positions
     string posText = IntegerToString(stats.totalPositions);
@@ -3645,23 +3613,31 @@ void UpdatePanel()
     posText += " / ";
     if(InpBotMode == BOT_MARTINGALE)
        posText += IntegerToString(InpMartMaxLevel);
-    else if(InpBotMode == BOT_SMC_TREND)
-       posText += IntegerToString(InpSmcMaxOrders);
-    else if(InpBotMode == BOT_GRID)
-       posText += IntegerToString(InpGridMaxPositions);
     else
        posText += "-";
 
-    ObjectSetString(0, g_panelName + "_val1", OBJPROP_TEXT, posText);
+     ObjectSetString(0, g_panelName + "_val2", OBJPROP_TEXT, posText);
 
    // Total Lot
-   ObjectSetString(0, g_panelName + "_val2", OBJPROP_TEXT, DoubleToString(stats.totalLot, 2) + " / " + DoubleToString(InpMaxTotalLot, 2));
+   ObjectSetString(0, g_panelName + "_val3", OBJPROP_TEXT, DoubleToString(stats.totalLot, 2) + " / " + DoubleToString(InpMaxTotalLot, 2));
 
    // Daily P&L
    string plText = "$" + DoubleToString(g_dailyProfit, 2);
    color plColor = g_dailyProfit >= 0 ? clrLime : clrRed;
-   ObjectSetString(0, g_panelName + "_val3", OBJPROP_TEXT, plText);
-   ObjectSetInteger(0, g_panelName + "_val3", OBJPROP_COLOR, plColor);
+   ObjectSetString(0, g_panelName + "_val4", OBJPROP_TEXT, plText);
+   ObjectSetInteger(0, g_panelName + "_val4", OBJPROP_COLOR, plColor);
+
+   // Monthly closed P&L from trade history
+   string monthClosedText = "$" + DoubleToString(g_monthlyClosedProfit, 2);
+   color monthClosedColor = g_monthlyClosedProfit >= 0 ? clrLime : clrRed;
+   ObjectSetString(0, g_panelName + "_val5", OBJPROP_TEXT, monthClosedText);
+   ObjectSetInteger(0, g_panelName + "_val5", OBJPROP_COLOR, monthClosedColor);
+
+   // Monthly total P&L = closed trades this month + current floating P&L
+   string monthText = "$" + DoubleToString(g_monthlyProfit, 2);
+   color monthColor = g_monthlyProfit >= 0 ? clrLime : clrRed;
+   ObjectSetString(0, g_panelName + "_val6", OBJPROP_TEXT, monthText);
+   ObjectSetInteger(0, g_panelName + "_val6", OBJPROP_COLOR, monthColor);
 
    // Direction
    string dirText = "-";
@@ -3671,20 +3647,14 @@ void UpdatePanel()
       if(g_martDirection == DIR_BUY) { dirText = "BUY"; dirColor = clrLime; }
       else if(g_martDirection == DIR_SELL) { dirText = "SELL"; dirColor = clrRed; }
    }
-   else if(InpBotMode == BOT_SMC_TREND)
-   {
-      ENUM_DIRECTION smcDir = GetSmcTrendDirection();
-      if(smcDir == DIR_BUY) { dirText = "BUY"; dirColor = clrLime; }
-      else if(smcDir == DIR_SELL) { dirText = "SELL"; dirColor = clrRed; }
-   }
-   ObjectSetString(0, g_panelName + "_val4", OBJPROP_TEXT, dirText);
-   ObjectSetInteger(0, g_panelName + "_val4", OBJPROP_COLOR, dirColor);
+   ObjectSetString(0, g_panelName + "_val7", OBJPROP_TEXT, dirText);
+   ObjectSetInteger(0, g_panelName + "_val7", OBJPROP_COLOR, dirColor);
 
    // SMC Signal
    string smcText = "OB:" + IntegerToString(ArraySize(g_orderBlocks)) +
                     " LQ:" + IntegerToString(ArraySize(g_liquidityZones)) +
                     " BOS:" + IntegerToString(ArraySize(g_breaks));
-   ObjectSetString(0, g_panelName + "_val5", OBJPROP_TEXT, smcText);
+   ObjectSetString(0, g_panelName + "_val8", OBJPROP_TEXT, smcText);
 
    // Session
    string sessionText = GetCurrentSession();
@@ -3697,33 +3667,37 @@ void UpdatePanel()
    string sessionUpper = sessionText;
    StringToUpper(sessionUpper);
 
-   ObjectSetString(0, g_panelName + "_val6", OBJPROP_TEXT, sessionUpper);
-   ObjectSetInteger(0, g_panelName + "_val6", OBJPROP_COLOR, sessionColor);
+   ObjectSetString(0, g_panelName + "_val9", OBJPROP_TEXT, sessionUpper);
+   ObjectSetInteger(0, g_panelName + "_val9", OBJPROP_COLOR, sessionColor);
+
+   // News filter state
+   string newsReason = "";
+   bool newsBlocked = IsInManualNewsWindow(newsReason);
+   string newsText = !InpUseNewsFilter ? "OFF" : (newsBlocked ? newsReason : "CLEAR");
+   ObjectSetString(0, g_panelName + "_val10", OBJPROP_TEXT, StringSubstr(newsText, 0, 28));
+   ObjectSetInteger(0, g_panelName + "_val10", OBJPROP_COLOR, !InpUseNewsFilter ? clrGray : (newsBlocked ? clrOrange : clrLime));
 
    // Win Rate
    double winRate = 0;
    if(g_totalTrades > 0)
       winRate = (double)g_winTrades / g_totalTrades * 100.0;
    string winText = DoubleToString(winRate, 1) + "% (" + IntegerToString(g_winTrades) + "/" + IntegerToString(g_totalTrades) + ")";
-   ObjectSetString(0, g_panelName + "_val7", OBJPROP_TEXT, winText);
-   ObjectSetInteger(0, g_panelName + "_val7", OBJPROP_COLOR, winRate >= 50 ? clrLime : clrOrange);
+   ObjectSetString(0, g_panelName + "_val11", OBJPROP_TEXT, winText);
+   ObjectSetInteger(0, g_panelName + "_val11", OBJPROP_COLOR, winRate >= 50 ? clrLime : clrOrange);
 
-   // Drawdown
-   double equity = AccountInfoDouble(ACCOUNT_EQUITY);
-   double drawdown = 0;
-   if(g_peakBalance > 0)
-      drawdown = ((g_peakBalance - equity) / g_peakBalance) * 100.0;
-   string ddText = DoubleToString(drawdown, 2) + "% / " + DoubleToString(InpMaxDrawdownPercent, 0) + "%";
+   // Current floating drawdown from Balance to Equity. This is not cumulative peak DD.
+   double drawdown = GetCurrentDrawdownPercent();
+   string ddText = DoubleToString(drawdown, 2) + "% / " + DoubleToString(g_maxCurrentDrawdown, 2) + "%";
    color ddColor = clrLime;
-   if(drawdown > InpMaxDrawdownPercent * 0.5) ddColor = clrOrange;
-   if(drawdown > InpMaxDrawdownPercent * 0.8) ddColor = clrRed;
-   ObjectSetString(0, g_panelName + "_val8", OBJPROP_TEXT, ddText);
-   ObjectSetInteger(0, g_panelName + "_val8", OBJPROP_COLOR, ddColor);
+   if(InpMaxDrawdownPercent > 0 && drawdown > InpMaxDrawdownPercent * 0.5) ddColor = clrOrange;
+   if(InpMaxDrawdownPercent > 0 && drawdown > InpMaxDrawdownPercent * 0.8) ddColor = clrRed;
+   ObjectSetString(0, g_panelName + "_val12", OBJPROP_TEXT, ddText);
+   ObjectSetInteger(0, g_panelName + "_val12", OBJPROP_COLOR, ddColor);
 
    // Last Error
    string errText = (g_lastError == "") ? "None" : StringSubstr(g_lastError, 0, 25);
-   ObjectSetString(0, g_panelName + "_val9", OBJPROP_TEXT, errText);
-   ObjectSetInteger(0, g_panelName + "_val9", OBJPROP_COLOR, (g_lastError == "") ? clrLime : clrRed);
+   ObjectSetString(0, g_panelName + "_val13", OBJPROP_TEXT, errText);
+   ObjectSetInteger(0, g_panelName + "_val13", OBJPROP_COLOR, (g_lastError == "") ? clrLime : clrRed);
 
    // TP Target (Profit / Target)
    string tpTargetText = "-";
@@ -3746,8 +3720,8 @@ void UpdatePanel()
          tpTargetColor = stats.totalProfit >= 0 ? clrLime : clrRed;
       }
    }
-   ObjectSetString(0, g_panelName + "_val10", OBJPROP_TEXT, tpTargetText);
-   ObjectSetInteger(0, g_panelName + "_val10", OBJPROP_COLOR, tpTargetColor);
+   ObjectSetString(0, g_panelName + "_val14", OBJPROP_TEXT, tpTargetText);
+   ObjectSetInteger(0, g_panelName + "_val14", OBJPROP_COLOR, tpTargetColor);
 
    // TP Price Level + Distance
    string tpPriceText = "-";
@@ -3778,8 +3752,8 @@ void UpdatePanel()
             tpPriceText = DoubleToString(posTP, _Digits);
       }
    }
-   ObjectSetString(0, g_panelName + "_val11", OBJPROP_TEXT, tpPriceText);
-   ObjectSetInteger(0, g_panelName + "_val11", OBJPROP_COLOR, clrCyan);
+   ObjectSetString(0, g_panelName + "_val15", OBJPROP_TEXT, tpPriceText);
+   ObjectSetInteger(0, g_panelName + "_val15", OBJPROP_COLOR, clrCyan);
 }
 
 //+------------------------------------------------------------------+

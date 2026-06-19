@@ -487,6 +487,25 @@ This means runaway can trigger even without ADX confirmation if distance + loss 
 - Tune emergency exit thresholds using failure-window backtests.
 - Consider adding basket max floating loss dollar limit as another guard.
 
+## Recommended Next Improvements
+
+High-priority additions to the new EA:
+
+- Add basket age guard, for example close/hedge/stop-add after basket is open too long.
+- Backtest the exact Killer failure window: XAUUSD-VIP M3, 2025-06-23 to 2025-06-25.
+- Compare whether the new EA avoids the trapped BUY sequence or exits before stop-out.
+- Add optional partial close / profit lock if backtests show baskets often become briefly recoverable.
+- Tune `InpRunawayDistancePips`, `InpRunawayLossPct`, and `InpMaxLevel` using failure-window backtests.
+
+Safer Killer-like starting config:
+
+- `InpBaseLot=0.03`
+- `InpLotMode=LOT_LINEAR_INCREMENT`
+- `InpLotIncrement=0.01`
+- `InpProfitPer001Lot=0.10`
+- Keep `InpMaxTotalLot` limited, such as 0.50 to 1.00 for first tests.
+- Keep `InpRunawayAction=RUNAWAY_CLOSE_BASKET` for safety testing.
+
 ## Compile Command
 
 Use MetaEditor:
@@ -502,3 +521,22 @@ User prefers Thai.
 Be direct and practical. The user wants implementation, not only theory.
 
 When discussing EA profitability, clearly say that profitability must be proven by backtest and forward test. Do not guarantee profit.
+
+## Martingale Recovery Principle From User
+
+For this project, do not treat cut loss as the main answer to martingale DD. The user's intended martingale principle is:
+
+- A forced close at loss means the martingale cycle has already failed.
+- The priority is better recovery entries, not surrendering the basket.
+- Pip distance is only a minimum throttle; it must not be the full add-entry reason for deeper levels.
+- From L4 onward, add entries should wait for real SMC/SMS timing such as OB, FVG, liquidity sweep, BOS, CHoCH, or clear trend exhaustion.
+- L1-L3 can stay closer to the original behavior so the bot still trades actively.
+- L4-L6 should require at least a meaningful SMC zone/trigger, not distance only.
+- L7+ should require stronger confirmation: structure shift plus liquidity sweep plus OB/FVG zone before adding.
+- Preferred risk control is `stop adding / wait for better recovery setup`, not `close basket at loss`.
+
+Latest PSS V6 direction:
+
+- Do not rework the user's original L1 entry behavior without explicit permission.
+- Keep profit-close reliability as the main bugfix area.
+- For DD reduction, focus on staged smart recovery entries from L4+, dynamic grid, lot curve, and close-profit execution.
