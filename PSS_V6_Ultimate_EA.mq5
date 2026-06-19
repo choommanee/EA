@@ -76,6 +76,8 @@ input bool            InpMartUseRecoveryProfitTP = true; // Scale TP by basket m
 input int             InpMartRecoveryTPMinLevel = 4; // Start DD-scaled TP from level
 input double          InpMartRecoveryTPPercent = 15.0; // Target % of basket max floating DD
 input double          InpMartRecoveryTPMaxUSD = 0.0; // Max DD-scaled TP (0=off)
+input double          InpMartMinClosePips = 8.0;    // Never close basket below this pip gain from avg
+input double          InpMartSpreadSafetyPct = 30.0; // Extra spread safety for TP/close (% of current spread)
 input bool            InpMartAutoDirection = true;  // Auto Direction (AI)
 input bool            InpMartUseATR = true;         // Use ATR Dynamic Grid
 input double          InpMartAtrMultiplier = 1.5;   // ATR Multiplier for Grid Spacing
@@ -112,7 +114,10 @@ input bool            InpUseMajorTrendGuard = true;  // Use major trend as L1 di
 input ENUM_TIMEFRAMES InpMajorTrendPeriod = PERIOD_H4; // Major Trend Period
 input int             InpMajorTrendFastEma = 50;     // Major Trend Fast EMA
 input int             InpMajorTrendSlowEma = 200;    // Major Trend Slow EMA
-input int             InpMajorTrendSlopeBars = 12;   // Major Trend Slope Bars
+input int             InpMajorTrendSlopeBars = 6;    // Major Trend Slope Bars (relaxed from 12)
+   // InpMajorTrendRequireClose=false means close does not need to be beyond fast EMA.
+   // InpMajorTrendRequirePriceSlope=false means close slope is optional.
+input bool            InpMajorTrendHtfFallback = true;  // Use HTF EMA as fallback when MajorTrend=NONE
 input int             InpMomEmaFast = 8;            // EMA Fast Period
 input int             InpMomEmaSlow = 21;           // EMA Slow Period
 input int             InpMomRsiPeriod = 14;         // RSI Period
@@ -122,7 +127,15 @@ input int             InpSwingLookback = 10;        // Swing Point Lookback
 input int             InpObLookback = 20;           // Order Block Lookback
 input int             InpLqLookback = 15;           // Liquidity Zone Lookback
 input int             InpBosLookback = 50;          // BOS/CHoCH Lookback
-input int             InpMinSmcScore = 3;           // Min SMC Score for Entry
+input int             InpMinSmcScore = 3;           // Min SMC Score for Add-orders (L4+)
+input int             InpSmcScoreForL1 = 1;         // Min SMC Score for L1 Entry (1=EMA only, 2=need OB/LQ, 0=direction only)
+
+input group "=== ADD-ORDER PROTECTION ==="
+input bool            InpBlockStrongOppCandle = true;  // Block add if strong opposite candle
+input double          InpStrongCandlePips = 15.0;   // Strong opposite candle size (pips)
+input int             InpStrongCandleLookback = 1;  // Check last N closed candles
+input double          InpMaxPipsFromL1 = 0;         // Max pips from L1 before stop-add (0=off)
+input bool            InpUseL1PipsGuard = false;    // Enable max-pips-from-L1 stop-add guard
 
 input group "=== SESSION FILTER ==="
 input bool            InpUseSessionFilter = true;   // Use Session Filter
@@ -1706,6 +1719,37 @@ SmcSignal CheckSmcEntry(ENUM_DIRECTION direction)
    double price = (bid + ask) / 2;
    double pipDistance = PipsToPrice(10);
 
+   // 0. Baseline: EMA alignment with direction (+1) and RSI confirmation (+1)
+   //    These indicators are always available, ensuring score >= 1 when trend agrees
+   {
+      double emaFast[], emaSlow[], rsiVal[];
+      ArraySetAsSeries(emaFast, true);
+      ArraySetAsSeries(emaSlow, true);
+      ArraySetAsSeries(rsiVal,  true);
+
+      bool emaOk = false;
+      if(g_handleEmaFast != INVALID_HANDLE && g_handleEmaSlow != INVALID_HANDLE)
+      {
+         if(CopyBuffer(g_handleEmaFast, 0, 0, 3, emaFast) > 0 &&
+            CopyBuffer(g_handleEmaSlow, 0, 0, 3, emaSlow) > 0)
+         {
+            // EMA Fast aligned with direction on current TF
+            if(direction == DIR_BUY  && emaFast[1] > emaSlow[1]) { signal.score += 1; signal.reason += "EMA+"; emaOk = true; }
+            if(direction == DIR_SELL && emaFast[1] < emaSlow[1]) { signal.score += 1; signal.reason += "EMA+"; emaOk = true; }
+         }
+      }
+
+      if(g_handleRsi != INVALID_HANDLE)
+      {
+         if(CopyBuffer(g_handleRsi, 0, 0, 3, rsiVal) > 0)
+         {
+            // RSI confirms direction (above 50 for BUY, below 50 for SELL)
+            if(direction == DIR_BUY  && rsiVal[1] > 50.0) { signal.score += 1; signal.reason += "RSI+"; }
+            if(direction == DIR_SELL && rsiVal[1] < 50.0) { signal.score += 1; signal.reason += "RSI+"; }
+         }
+      }
+   }
+
    // 1. Check Order Block
    for(int i = 0; i < ArraySize(g_orderBlocks); i++)
    {
@@ -1845,6 +1889,110 @@ SmcSignal CheckSmcEntry(ENUM_DIRECTION direction)
    }
 
    return signal;
+}
+
+//+------------------------------------------------------------------+
+//| CheckSmcEntry variant using L1-specific lower score threshold     |
+//+------------------------------------------------------------------+
+SmcSignal CheckSmcEntryForL1(ENUM_DIRECTION direction)
+{
+   SmcSignal signal = CheckSmcEntry(direction);
+
+   // Override score check using the L1-specific lower threshold
+   int reqScore = (InpSmcScoreForL1 > 0) ? InpSmcScoreForL1 : InpMinSmcScore;
+
+   if(signal.score >= reqScore)
+   {
+      signal.valid = true;
+      if(StringLen(signal.reason) > 0)
+         signal.reason = StringSubstr(signal.reason, 0, StringLen(signal.reason) - 1);
+      else
+         signal.reason = "Score" + IntegerToString(signal.score);
+      signal.waiting = "";
+   }
+   else
+   {
+      signal.valid = false;
+      signal.waiting = "L1 Score " + IntegerToString(signal.score) + "/" + IntegerToString(reqScore);
+   }
+
+   return signal;
+}
+
+//+------------------------------------------------------------------+
+//| Check if a strong opposite candle exists (momentum block)         |
+//+------------------------------------------------------------------+
+bool CheckStrongOppositeCandle(ENUM_DIRECTION direction, double minPips, int lookback, string &reason)
+{
+   reason = "";
+   if(!InpBlockStrongOppCandle || minPips <= 0 || lookback <= 0)
+      return false;
+
+   int barsNeeded = lookback + 2;
+   double high[], low[], open[], close[];
+   ArraySetAsSeries(high,  true);
+   ArraySetAsSeries(low,   true);
+   ArraySetAsSeries(open,  true);
+   ArraySetAsSeries(close, true);
+
+   if(CopyHigh (_Symbol, PERIOD_CURRENT, 1, barsNeeded, high)  <= 0 ||
+      CopyLow  (_Symbol, PERIOD_CURRENT, 1, barsNeeded, low)   <= 0 ||
+      CopyOpen (_Symbol, PERIOD_CURRENT, 1, barsNeeded, open)  <= 0 ||
+      CopyClose(_Symbol, PERIOD_CURRENT, 1, barsNeeded, close) <= 0)
+      return false;
+
+   double minPrice = PipsToPrice(minPips);
+
+   for(int i = 0; i < lookback && i < barsNeeded; i++)
+   {
+      double candleSize = MathAbs(close[i] - open[i]);
+      if(candleSize < minPrice)
+         continue;
+
+      bool isBearish = close[i] < open[i];
+      bool isBullish = close[i] > open[i];
+
+      if(direction == DIR_BUY && isBearish)
+      {
+         reason = "Strong bearish candle " + DoubleToString(PriceToPips(candleSize), 1) + "p blocks BUY add";
+         return true;
+      }
+      else if(direction == DIR_SELL && isBullish)
+      {
+         reason = "Strong bullish candle " + DoubleToString(PriceToPips(candleSize), 1) + "p blocks SELL add";
+         return true;
+      }
+   }
+
+   return false;
+}
+
+//+------------------------------------------------------------------+
+//| Get the open price of the L1 (first) position in the basket      |
+//+------------------------------------------------------------------+
+double GetL1EntryPrice(int magic)
+{
+   double l1Price  = 0;
+   datetime l1Time = 0;
+
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+   {
+      if(!posInfo.SelectByIndex(i)) continue;
+      if(posInfo.Symbol() != _Symbol || posInfo.Magic() != magic) continue;
+
+      string cmt = posInfo.Comment();
+      if(StringFind(cmt, "Mart L1") >= 0)
+      {
+         // Prefer earliest L1 open time
+         if(l1Time == 0 || posInfo.Time() < l1Time)
+         {
+            l1Time  = posInfo.Time();
+            l1Price = posInfo.PriceOpen();
+         }
+      }
+   }
+
+   return l1Price;
 }
 
 bool DirectionMatchesBreak(ENUM_DIRECTION direction, StructureBreak &brk)
@@ -2341,15 +2489,18 @@ ENUM_DIRECTION GetMajorTrendDirection(string &reason)
       return DIR_NONE;
    }
 
+   // Relax slope condition: EMA cross + EMA slope is enough by default.
+   // InpMajorTrendRequireClose=false means close does not need to be beyond fast EMA.
+   // InpMajorTrendRequirePriceSlope=false means close slope is optional.
    bool bullish = emaFast[1] > emaSlow[1] &&
-                  close[1] > emaFast[1] &&
-                  emaFast[1] > emaFast[slopeBars] &&
-                  close[1] > close[slopeBars];
+                   emaFast[1] > emaFast[slopeBars] &&
+                   (!InpMajorTrendRequireClose      || close[1] > emaFast[1]) &&
+                   (!InpMajorTrendRequirePriceSlope || close[1] > close[slopeBars]);
 
    bool bearish = emaFast[1] < emaSlow[1] &&
-                  close[1] < emaFast[1] &&
-                  emaFast[1] < emaFast[slopeBars] &&
-                  close[1] < close[slopeBars];
+                   emaFast[1] < emaFast[slopeBars] &&
+                   (!InpMajorTrendRequireClose      || close[1] < emaFast[1]) &&
+                   (!InpMajorTrendRequirePriceSlope || close[1] < close[slopeBars]);
 
    if(bullish)
    {
@@ -2385,10 +2536,24 @@ ENUM_DIRECTION AnalyzeDailyDirection()
 
    string majorReason = "";
    ENUM_DIRECTION majorDir = GetMajorTrendDirection(majorReason);
-   if(InpUseMajorTrendGuard && majorDir != DIR_NONE)
+   if(InpUseMajorTrendGuard)
    {
-      Print("[DIR-BIAS] Major trend selected ", EnumToString(majorDir), ": ", majorReason);
-      return majorDir;
+      if(majorDir != DIR_NONE)
+      {
+         Print("[DIR-BIAS] Major trend selected ", EnumToString(majorDir), ": ", majorReason);
+         return majorDir;
+      }
+      // Fallback: when MajorTrend is NONE, use HTF EMA instead of stopping trades.
+      if(InpMajorTrendHtfFallback)
+      {
+         ENUM_DIRECTION htfFallback = GetHTFTrendDirection();
+         if(htfFallback != DIR_NONE)
+         {
+      // Fallback: when MajorTrend is NONE, use HTF EMA instead of stopping trades.
+            return htfFallback;
+         }
+         Print("[DIR-BIAS] MajorTrend=NONE, HTF=NONE. Using score-based direction.");
+      }
    }
 
    int buyScore = 0;
@@ -2435,7 +2600,7 @@ ENUM_DIRECTION AnalyzeDailyDirection()
 
 //+------------------------------------------------------------------+
 //| SOLUTION 1: Check Trend Filter (Anti-Trend Trading)              |
-//| จาก Web Research: Grid Bot Best Practices, Blueberry Markets     |
+//| From Web Research: Grid Bot Best Practices, Blueberry Markets     |
 //+------------------------------------------------------------------+
 bool CheckTrendFilter(ENUM_DIRECTION direction)
 {
@@ -2497,7 +2662,7 @@ bool CheckTrendFilter(ENUM_DIRECTION direction)
 
 //+------------------------------------------------------------------+
 //| SOLUTION 1: Check Trend Reversal Exit                            |
-//| จาก Statement Analysis 2026-01-02: Stop Out Prevention           |
+//| From Statement Analysis 2026-01-02: Stop Out Prevention           |
 //+------------------------------------------------------------------+
 bool CheckTrendReversalExit(ENUM_DIRECTION direction, double totalProfit)
 {
@@ -2567,7 +2732,7 @@ bool CheckTrendReversalExit(ENUM_DIRECTION direction, double totalProfit)
 
 //+------------------------------------------------------------------+
 //| SOLUTION 1: Check Emergency Exit (Margin/Drawdown Protection)    |
-//| จาก Statement Analysis: Stop Out at Margin Level 17-20%          |
+//| From Statement Analysis: Stop Out at Margin Level 17-20%          |
 //+------------------------------------------------------------------+
 bool CheckEmergencyExit(double totalProfit)
 {
@@ -2730,8 +2895,9 @@ void RunMartingaleBot()
       {
          g_martDirection = AnalyzeDailyDirection();
 
-         // Apply strict HTF trend filter
-         if(InpUseHtfFilter)
+         // Apply strict HTF trend filter only when major-trend direction bias is disabled.
+         // Otherwise the two filters can conflict and block all L1 entries.
+         if(InpUseHtfFilter && !InpUseMajorTrendGuard)
          {
             ENUM_DIRECTION htfDir = GetHTFTrendDirection();
             if(htfDir != DIR_NONE && g_martDirection != htfDir)
@@ -2742,8 +2908,7 @@ void RunMartingaleBot()
                return;
             }
          }
-
-      }
+      } // end if(InpMartAutoDirection || g_martDirection == DIR_NONE)
 
       Print("[MARTINGALE] No positions. Direction: ", EnumToString(g_martDirection));
 
@@ -2756,7 +2921,12 @@ void RunMartingaleBot()
          }
 
       // Check strict SMC/SMS entry: CHoCH+BOS, liquidity sweep and OB zone.
-      SmcSignal signal = CheckMartingaleSmcPrecisionEntry(g_martDirection, false);
+      // Use CheckSmcEntryForL1 which applies InpSmcScoreForL1 (lower threshold for L1)
+      SmcSignal signal;
+      if(InpMartStrictSmcEntry)
+         signal = CheckMartingaleSmcPrecisionEntry(g_martDirection, false);
+      else
+         signal = CheckSmcEntryForL1(g_martDirection);
 
       Print("[MARTINGALE] SMC Signal - Valid: ", signal.valid, " Score: ", signal.score,
             " Reason: ", signal.reason, " Waiting: ", signal.waiting);
@@ -2787,7 +2957,8 @@ void RunMartingaleBot()
       }
       else
       {
-         Print("[MARTINGALE] Waiting for SMC signal (score ", signal.score, "/", InpMinSmcScore, ")");
+         Print("[MARTINGALE] Waiting for SMC signal (score ", signal.score, "/",
+               ((InpSmcScoreForL1 > 0 && !InpMartStrictSmcEntry) ? InpSmcScoreForL1 : InpMinSmcScore), ")");
          SetTradeStatus("WAIT SMC L1");
       }
       return;
@@ -2819,6 +2990,10 @@ void RunMartingaleBot()
    // do not close for the same fixed $ target as a single small entry.
    double targetProfit = InpMartTakeProfitUSD;
    double tpDist = 0;
+
+   double spreadPrice = MathMax(ask - bid, 0.0);
+   double spreadSafetyPct = MathMax(InpMartSpreadSafetyPct, 0.0) / 100.0;
+   double spreadSafetyPrice = spreadPrice * spreadSafetyPct;
 
    if(InpMartUseAdaptiveBasketTP)
    {
@@ -2863,7 +3038,7 @@ void RunMartingaleBot()
 
       double tickVal = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
       double tickSz = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
-      if(stats.totalLot > 0 && tickVal > 0)
+      if(stats.totalLot > 0 && tickVal > 0 && tickSz > 0)
          tpDist = (targetProfit / stats.totalLot) * (tickSz / tickVal);
    }
 
@@ -2876,8 +3051,24 @@ void RunMartingaleBot()
 
       double tickVal = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
       double tickSz = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
-      if(stats.totalLot > 0 && tickVal > 0)
+      if(stats.totalLot > 0 && tickVal > 0 && tickSz > 0)
          tpDist = (targetProfit / stats.totalLot) * (tickSz / tickVal);
+   }
+
+   // Spread safety: force target profit above estimated spread cost by configured margin.
+   {
+      double tickVal = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
+      double tickSz = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
+      if(stats.totalLot > 0 && tickVal > 0 && tickSz > 0 && spreadPrice > 0)
+      {
+         double spreadCostUsd = (spreadPrice / tickSz) * tickVal * stats.totalLot;
+         double spreadSafeProfitUsd = spreadCostUsd * (1.0 + spreadSafetyPct);
+         if(spreadSafeProfitUsd > targetProfit)
+         {
+            targetProfit = spreadSafeProfitUsd;
+            tpDist = (targetProfit / stats.totalLot) * (tickSz / tickVal);
+         }
+      }
    }
 
    g_calcTargetProfit = targetProfit;
@@ -2885,9 +3076,9 @@ void RunMartingaleBot()
    // Calculate TP price level for visual display and price-based backup close
    {
       if(direction == DIR_BUY)
-         g_calcTPPrice = avgPrice + tpDist;
+         g_calcTPPrice = avgPrice + tpDist + spreadSafetyPrice;
       else
-         g_calcTPPrice = avgPrice - tpDist;
+         g_calcTPPrice = avgPrice - tpDist - spreadSafetyPrice;
    }
 
    // TP Debug logging every 30 seconds
@@ -2901,7 +3092,8 @@ void RunMartingaleBot()
             " | Lots: ", DoubleToString(stats.totalLot, 2),
             " | Pos: ", stats.totalPositions,
             " | ProfitPips: ", DoubleToString(profitPips, 1),
-            " | BasketMaxDD: $", DoubleToString(g_basketMaxFloatingLoss, 2));
+            " | BasketMaxDD: $", DoubleToString(g_basketMaxFloatingLoss, 2),
+            " | SpreadSafety%: ", DoubleToString(InpMartSpreadSafetyPct, 1));
    }
 
    // Check take profit
@@ -2936,6 +3128,17 @@ void RunMartingaleBot()
    // TP TRIGGERED - proceed to close
    if(tpTriggered)
    {
+      // Hard guard: do not close basket too close to average price
+      if(InpMartMinClosePips > 0 && profitPips < InpMartMinClosePips)
+      {
+         SetTradeStatus("WAIT MIN CLOSE PIPS");
+         Print("[TP-GUARD] Close blocked. ProfitPips=", DoubleToString(profitPips, 1),
+               " < MinClosePips=", DoubleToString(InpMartMinClosePips, 1),
+               " | Profit=$", DoubleToString(stats.totalProfit, 2),
+               " | Target=$", DoubleToString(targetProfit, 2));
+         return;
+      }
+
       // Hedge Protection
       bool hasHedge = false;
       int buyCount = 0, sellCount = 0;
@@ -3240,6 +3443,49 @@ void RunMartingaleBot()
          reason = "Fallback " + IntegerToString((int)distancePips) + "p";
       }
 
+      // === NEW PROTECTION GUARDS ===
+
+      // Guard A: Strong opposite candle block
+      if(shouldEnter)
+      {
+         string candleReason = "";
+         if(CheckStrongOppositeCandle(direction, InpStrongCandlePips, InpStrongCandleLookback, candleReason))
+         {
+            shouldEnter = false;
+            signal.waiting = candleReason;
+            SetTradeStatus("WAIT STRONG CANDLE");
+            static datetime lastCandleLog = 0;
+            if(TimeCurrent() - lastCandleLog >= 60)
+            {
+               lastCandleLog = TimeCurrent();
+               Print("[MART-GUARD] Add L", nextLevel, " blocked: ", candleReason);
+            }
+         }
+      }
+
+      // Guard B: Max pips from L1 stop-add
+      if(shouldEnter && InpUseL1PipsGuard && InpMaxPipsFromL1 > 0)
+      {
+         double l1Price = GetL1EntryPrice(MAGIC_MARTINGALE);
+         if(l1Price > 0)
+         {
+            double pipsFromL1 = MathAbs(PriceToPips(l1Price - price));
+            if(pipsFromL1 >= InpMaxPipsFromL1)
+            {
+               shouldEnter = false;
+               signal.waiting = "MaxPipsL1 " + DoubleToString(pipsFromL1, 1) + "/" + DoubleToString(InpMaxPipsFromL1, 1) + "p";
+               SetTradeStatus("WAIT MAX PIPS L1");
+               static datetime lastPipsLog = 0;
+               if(TimeCurrent() - lastPipsLog >= 60)
+               {
+                  lastPipsLog = TimeCurrent();
+                  Print("[MART-GUARD] Add L", nextLevel, " blocked: basket ", DoubleToString(pipsFromL1, 1),
+                        "p from L1. Limit=", DoubleToString(InpMaxPipsFromL1, 1), "p");
+               }
+            }
+         }
+      }
+
       if(!shouldEnter)
       {
          string waitText = signal.waiting == "" ? "WAIT SMART ENTRY" : "WAIT " + signal.waiting;
@@ -3248,8 +3494,8 @@ void RunMartingaleBot()
          if(TimeCurrent() - lastNoEnterLog >= 60)
          {
             lastNoEnterLog = TimeCurrent();
-            Print("[MART-DEBUG] Can't add L", currentLevel + 1, ": strict SMC/SMS gate not ready (", signal.waiting,
-                  "). Distance=", DoubleToString(distancePips, 1),
+            Print("[MART-DEBUG] Can't add L", currentLevel + 1, ": ", signal.waiting,
+                  " Distance=", DoubleToString(distancePips, 1),
                   "p Fallback=", (InpMartAllowFallbackAdd ? "ON" : "OFF"));
          }
       }
