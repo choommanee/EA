@@ -115,8 +115,8 @@ input ENUM_TIMEFRAMES InpMajorTrendPeriod = PERIOD_H4; // Major Trend Period
 input int             InpMajorTrendFastEma = 50;     // Major Trend Fast EMA
 input int             InpMajorTrendSlowEma = 200;    // Major Trend Slow EMA
 input int             InpMajorTrendSlopeBars = 6;    // Major Trend Slope Bars (relaxed from 12)
-   // InpMajorTrendRequireClose=false means close does not need to be beyond fast EMA.
-   // InpMajorTrendRequirePriceSlope=false means close slope is optional.
+input bool            InpMajorTrendRequireClose = false; // Require close > FastEMA (false = relaxed)
+input bool            InpMajorTrendRequirePriceSlope = false; // Require close slope (false = relaxed)
 input bool            InpMajorTrendHtfFallback = true;  // Use HTF EMA as fallback when MajorTrend=NONE
 input int             InpMomEmaFast = 8;            // EMA Fast Period
 input int             InpMomEmaSlow = 21;           // EMA Slow Period
